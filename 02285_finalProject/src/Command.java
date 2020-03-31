@@ -1,5 +1,3 @@
-package app;
-
 //HUSK AT TJEKKE HVORDAN SERVER VED HVILKEN AGENT EN COMMAND TILHØRER
 
 import java.util.ArrayList;

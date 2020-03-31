@@ -1,4 +1,4 @@
-package app;
+
 
 public class Memory {
     private static final Runtime RUNTIME = Runtime.getRuntime();

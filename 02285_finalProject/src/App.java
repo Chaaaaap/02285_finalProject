@@ -1,4 +1,4 @@
-package app;
+
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,7 +10,8 @@ public class App {
 
     public State initialState;
 
-    public App(BufferedReader serverMessages) throws Exception{
+    public App(BufferedReader serverMessages) throws Exception {
+    System.out.println("Test");
         String line = serverMessages.readLine();
         if (!line.startsWith("#")){
             System.err.println("Error, does not start with #");
@@ -18,24 +19,25 @@ public class App {
         }
 
         
-        this.initialState = null;
+        this.initialState = new State();
 
         while(!line.equals("")){
-
             switch (line) {
                 case "#domain": 
                     State.domain = serverMessages.readLine();
-                    
+                    line = serverMessages.readLine();
                 break;
                 case "#levelname":
                     State.levelName = serverMessages.readLine();
+                    line = serverMessages.readLine();
                 break;
                 case "#colors":
-                    do {
-                        line = serverMessages.readLine();
-                        String[] colors = line.split(":|\\,");
+                line = serverMessages.readLine();    
+                do {
+                        String[] colors = line.split(": |\\, ");
                         for (int j = 1; j < colors.length; j++) {
-                            if(colors[j].matches("[a-z]")){
+                            char col = colors[j].charAt(0);
+                            if('A' <= col && col <= 'Z'){
                                 initialState.addBox(colors[0], colors[j].charAt(0));
                             }
                             else{
@@ -43,12 +45,13 @@ public class App {
                                 
                             }
                         }
+                        line = serverMessages.readLine();
                     } while (!line.startsWith(("#")));
                 break;
                 case "#initial":
                 int row = 0;
+                line = serverMessages.readLine();
                 do {
-                    line = serverMessages.readLine();
                     for (int col = 0; col < line.length(); col++) {
                         char chr = line.charAt(col);
         
@@ -61,18 +64,20 @@ public class App {
                         }else if (chr == ' ') {
                             // Free space.
                         } else {
+                            System.err.println(line);
+                            
                             System.err.println("Error, read invalid level character: " + (int) chr);
                             System.exit(1);
                         }
                     }
                     row++;
-                } while (!line.startsWith("#"));
-                           
+                    line = serverMessages.readLine();
+                } while (!line.startsWith("#"));          
                 break;
                 case "#goal":
-                do {
-                    row = 0;
-                    line = serverMessages.readLine();
+                line = serverMessages.readLine();
+                row = 0;
+                do {                   
                     for (int col = 0; col < line.length(); col++) {
                         char chr = line.charAt(col);
                         if ('A' <= chr && chr <= 'Z') { // Goal.
@@ -80,14 +85,15 @@ public class App {
                         }
                     }
                     row++;
+                    line = serverMessages.readLine();
                 } while (!line.startsWith("#"));
                 break;
                 case "#end":
-                    return;
+                return;
                 default:
+                System.err.println("default: " + line);
                     break;
             }
-            line = serverMessages.readLine(); 
         }
 
     }
@@ -100,7 +106,8 @@ public class App {
 
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
-        System.out.println(app.initialState);
+        System.err.println(app.initialState);
+
 
     }
 }

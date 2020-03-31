@@ -1,5 +1,3 @@
-package app;
-
 import java.util.ArrayList;
 
 //Agent position
@@ -29,13 +27,14 @@ public class State {
         box.add(new Box(color, chr));
     }
 
+
     public void addAgent(String color, char chr){
         agent.add(new Agent(color, chr));
     }
 
     public void updateAgent(char name, int row, int col){
         for (int i = 0; i < agent.size(); i++) {
-            if(agent.get(i).name == name){
+            if((int)agent.get(i).name == (int)name){
                 agents[row][col] = agent.get(i);
                 agent.remove(i);
             }
@@ -44,7 +43,8 @@ public class State {
 
     public void updateBox(char name, int row, int col){
         for (int i = 0; i < box.size(); i++) {
-            if(box.get(i).name == name){
+            if((int)box.get(i).name == (int)name){
+                 
                 boxes[row][col] = box.get(i);
                 box.remove(i);
             }
@@ -72,10 +72,9 @@ public class State {
                 if (this.boxes[row][col] != null) {
                     s.append(this.boxes[row][col].name);
                 } else if (this.goals[row][col] > 0) {
-                    s.append(this.goals[row][col]);
+                    s.append(Character.toLowerCase(this.goals[row][col]));
                 } else if (this.walls[row][col]) {
-                    s.append("+");  
-                              
+                    s.append("+");               
                 }else if (this.agents[row][col] != null){
                     s.append(this.agents[row][col].name);
                 } 
