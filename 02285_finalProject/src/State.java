@@ -23,6 +23,9 @@ public class State {
     public Agent[][] agents = new Agent[MAX_ROW][MAX_COL];
     public ArrayList<Agent> agent = new ArrayList<>();
 
+
+    public State() {    }
+
     public void addBox(String color, char chr){
         box.add(new Box(color, chr));
     }

@@ -3,6 +3,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+
 //Read level from server
 //Start search
 
@@ -11,7 +12,7 @@ public class App {
     public State initialState;
 
     public App(BufferedReader serverMessages) throws Exception {
-    System.out.println("Test");
+        System.err.println("Test");
         String line = serverMessages.readLine();
         if (!line.startsWith("#")){
             System.err.println("Error, does not start with #");
