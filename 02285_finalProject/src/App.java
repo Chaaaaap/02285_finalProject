@@ -12,16 +12,17 @@ public class App {
     public State initialState;
 
     public App(BufferedReader serverMessages) throws Exception {
-        System.err.println("Test");
+
+        System.out.println("MotherfuckingClientName#!?&!&%!##!");
+
         String line = serverMessages.readLine();
         if (!line.startsWith("#")){
             System.err.println("Error, does not start with #");
             System.exit(1);
         }
-
         
         this.initialState = new State();
-
+        
         while(!line.equals("")){
             switch (line) {
                 case "#domain": 
@@ -95,7 +96,10 @@ public class App {
                 System.err.println("default: " + line);
                     break;
             }
+            
         }
+
+       
 
     }
 
@@ -107,7 +111,7 @@ public class App {
 
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
-        System.err.println(app.initialState);
+        System.err.println("Initial state: " + app.initialState);
 
 
     }
