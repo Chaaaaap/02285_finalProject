@@ -12,10 +12,13 @@ public class App {
     public State initialState;
 
     public App(BufferedReader serverMessages) throws Exception {
+        
+        // Send client name to server via stdout stream
+        System.out.println("Client");
 
-        System.out.println("MotherfuckingClientName#!?&!&%!##!");
-
+        // Reads lines of the level file provided as argument when running the server
         String line = serverMessages.readLine();
+
         if (!line.startsWith("#")){
             System.err.println("Error, does not start with #");
             System.exit(1);
@@ -111,7 +114,7 @@ public class App {
 
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
-        System.err.println("Initial state: " + app.initialState);
+        System.err.println(app.initialState);
 
 
     }
