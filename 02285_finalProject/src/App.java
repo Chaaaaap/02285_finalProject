@@ -56,6 +56,7 @@ public class App {
                 case "#initial":
                 int row = 0;
                 line = serverMessages.readLine();
+                initialState.MAX_COL = line.length();
                 do {
                     for (int col = 0; col < line.length(); col++) {
                         char chr = line.charAt(col);
@@ -78,6 +79,7 @@ public class App {
                     row++;
                     line = serverMessages.readLine();
                 } while (!line.startsWith("#"));          
+                    initialState.MAX_ROW = row;
                 break;
                 case "#goal":
                 line = serverMessages.readLine();
@@ -94,16 +96,13 @@ public class App {
                 } while (!line.startsWith("#"));
                 break;
                 case "#end":
+                   initialState.cleanLevel();
                 return;
                 default:
                 System.err.println("default: " + line);
                     break;
             }
-            
         }
-
-       
-
     }
 
     public static void main(String[] args) throws Exception {

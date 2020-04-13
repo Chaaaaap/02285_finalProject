@@ -15,9 +15,9 @@ public class State {
     public static int MAX_ROW = 70;
     public static int MAX_COL = 70;
     
-    public boolean[][] walls = new boolean[MAX_ROW][MAX_COL];
+    public static boolean[][] walls = new boolean[MAX_ROW][MAX_COL];
     public Box[][] boxes = new Box[MAX_ROW][MAX_COL];
-    public char[][] goals = new char[MAX_ROW][MAX_COL];
+    public static char[][] goals = new char[MAX_ROW][MAX_COL];
     public ArrayList<Box> box = new ArrayList<>();
 
     public Agent[][] agents = new Agent[MAX_ROW][MAX_COL];
@@ -100,5 +100,33 @@ public class State {
             this.color = color;
             this.name = name;
         }
+
+        @Override
+        public String toString() {
+            return "Color: " + color + ", name: " + name + ", row: " + row + ", col: " + col;
+        }
     }
+
+    public void cleanLevel(){
+
+        int rows = MAX_ROW;
+        int cols = MAX_COL;
+
+        boolean[][] newWalls    = new boolean[rows][cols];
+        Box[][] newBoxes        = new Box[rows][cols];
+        char[][] newGoals       = new char[rows][cols];
+        
+        for (int row = 0 ; row < rows ; row++){
+            for (int col = 0 ; col < cols ; col++){
+                newWalls[row][col] = this.walls[row][col];
+                newBoxes[row][col] = this.boxes[row][col];
+                newGoals[row][col] = this.goals[row][col];
+            }
+        }
+        
+        this.walls = newWalls;
+        this.boxes = newBoxes;
+        this.goals = newGoals;
+    }
+
 }
