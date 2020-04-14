@@ -61,7 +61,6 @@ public class State {
         
 
         public Box(String color, char name){
-            System.err.println("sdfgbhnm,");
             this.color = color;
             this.name = name;
         }

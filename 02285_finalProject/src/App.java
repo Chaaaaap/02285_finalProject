@@ -99,7 +99,6 @@ public class App {
                    initialState.cleanLevel();
                 return;
                 default:
-                System.err.println("default: " + line);
                     break;
             }
         }
