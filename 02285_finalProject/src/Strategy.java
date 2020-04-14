@@ -45,6 +45,51 @@ public abstract class Strategy {
     @Override
     public abstract String toString();
 
+    //BFS
+    public static class StrategyBFS extends Strategy {
+        private ArrayDeque<State> frontier;
+        private HashSet<State> frontierSet;
+
+        public StrategyBFS() {
+            super();
+            frontier = new ArrayDeque<>();
+            frontierSet = new HashSet<>();
+        }
+
+        @Override
+        public State getAndRemoveLeaf() {
+            State n = frontier.pollFirst();
+            frontierSet.remove(n);
+            return n;
+        }
+
+        @Override
+        public void addToFrontier(State n) {
+            frontier.addLast(n);
+            frontierSet.add(n);
+        }
+
+        @Override
+        public int countFrontier() {
+            return frontier.size();
+        }
+
+        @Override
+        public boolean frontierIsEmpty() {
+            return frontier.isEmpty();
+        }
+
+        @Override
+        public boolean inFrontier(State n) {
+            return frontierSet.contains(n);
+        }
+
+        @Override
+        public String toString() {
+            return "Breadth-first Search";
+        }
+    }
+
     //DFS
     public static class StrategyDFS extends Strategy {
         private Stack<State> frontier;

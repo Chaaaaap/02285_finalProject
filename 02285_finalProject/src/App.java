@@ -151,7 +151,7 @@ public class App {
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
 
-        Strategy strategy = new Strategy.StrategyDFS();
+        Strategy strategy = new Strategy.StrategyBFS();
 
         ArrayList<State> solution;
         try {
