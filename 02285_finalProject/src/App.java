@@ -56,7 +56,7 @@ public class App {
                 case "#initial":
                 int row = 0;
                 line = serverMessages.readLine();
-                initialState.MAX_COL = line.length();
+                initialState.MAX_COL = 0;
                 do {
                     for (int col = 0; col < line.length(); col++) {
                         char chr = line.charAt(col);
@@ -77,6 +77,9 @@ public class App {
                         }
                     }
                     row++;
+                    if(initialState.MAX_COL < line.length()){
+                        initialState.MAX_COL = line.length();
+                    }
                     line = serverMessages.readLine();
                 } while (!line.startsWith("#"));          
                     initialState.MAX_ROW = row;

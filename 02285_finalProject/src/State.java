@@ -136,8 +136,6 @@ public class State {
             int newAgentRow = this.agent.get(0).row + Command.dirToRowChange(c.dir1);
             int newAgentCol = this.agent.get(0).col + Command.dirToColChange(c.dir1);
 
-            
-
             if (c.actionType == Command.Type.Move) {
                 // Check if there's a wall or box on the cell to which the agent is moving
                 
