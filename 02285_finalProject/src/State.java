@@ -58,7 +58,10 @@ public class State {
         public String color;
         public char name;
 
+        
+
         public Box(String color, char name){
+            System.err.println("sdfgbhnm,");
             this.color = color;
             this.name = name;
         }
