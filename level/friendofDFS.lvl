@@ -1,0 +1,15 @@
+#domain
+hospital
+#levelname
+SAFriendsOfDFS
+#colors
+blue: 0, A
+#initial
+++++++
++0A  +
+++++++
+#goal
+++++++
++   A+
+++++++
+#end

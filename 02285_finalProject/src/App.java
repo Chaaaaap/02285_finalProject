@@ -1,7 +1,7 @@
 
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 
 //Read level from server
@@ -96,11 +96,46 @@ public class App {
                 } while (!line.startsWith("#"));
                 break;
                 case "#end":
-                   initialState.cleanLevel();
+                    initialState.cleanLevel();
                 return;
                 default:
+                
                     break;
             }
+        }
+
+       
+    }
+
+    public ArrayList<State> Search(Strategy strategy) {
+        System.err.format("Search starting with strategy %s.\n", strategy.toString());
+        strategy.addToFrontier(this.initialState);
+
+        int iterations = 0;
+        while (true) {
+            if (iterations == 1000) {
+                System.err.println(strategy.searchStatus());
+                iterations = 0;
+            }
+
+            if (strategy.frontierIsEmpty()) {
+                return null;
+            }
+
+            State leafState = strategy.getAndRemoveLeaf();
+
+            if (leafState.isGoalState()) {
+                return leafState.extractPlan();
+            }
+
+            
+            strategy.addToExplored(leafState);
+            for (State n : leafState.getExpandedStates()) { // The list of expanded states is shuffled randomly; see State.java.
+                if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
+                    strategy.addToFrontier(n);
+                }
+            }
+            iterations++;
         }
     }
 
@@ -112,8 +147,38 @@ public class App {
 
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
-        System.err.println(app.initialState);
 
+        Strategy strategy = new Strategy.StrategyDFS();
+
+        ArrayList<State> solution;
+        try {
+            solution = app.Search(strategy);
+        } catch (OutOfMemoryError ex) {
+            System.err.println("Maximum memory usage exceeded.");
+            solution = null;
+        }
+
+        if (solution == null) {
+            System.err.println(strategy.searchStatus());
+            System.err.println("Unable to solve level.");
+            System.exit(0);
+        } else {
+            System.err.println("\nSummary for " + strategy.toString());
+            System.err.println("Found solution of length " + solution.size());
+            System.err.println(strategy.searchStatus());
+
+            for (State n : solution) {
+                String act = n.action.toString();
+                System.out.println(act);
+                
+                String response = serverMessages.readLine();
+                if (response.contains("false")) {
+                    System.err.format("Server responsed with %s to the inapplicable action: %s\n", response, act);
+                    System.err.format("%s was attempted in \n%s\n", act, n.toString());
+                    break;
+                }
+            }
+        }
 
     }
 }

@@ -1,3 +1,5 @@
 02285_finalProject/bin/*
 02285_finalProject/.vscode/settings.json
 02285_finalProject/src/*.class
+
+*.class
