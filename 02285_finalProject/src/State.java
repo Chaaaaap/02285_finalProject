@@ -13,7 +13,8 @@ import java.util.Random;
 public class State {
     private static final Random RNG = new Random(1);
 
-    private int _hash = 0;
+    public int _hash = 0;
+    public int h;
 
     public static String levelName;
     public static String domain;
@@ -232,10 +233,17 @@ public class State {
             result = prime * result + Arrays.deepHashCode(this.boxes);
             result = prime * result + Arrays.deepHashCode(this.goals);
             result = prime * result + Arrays.deepHashCode(this.walls);
+            result = prime * result + this.box.hashCode();
             this._hash = result;
         }
         return this._hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this._hash ==  obj.hashCode();
+    }
+
 
     public class Agent implements Cloneable {
         public String color;

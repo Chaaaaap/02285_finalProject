@@ -2,6 +2,7 @@ import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Stack;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public abstract class Strategy {
     private HashSet<State> explored;
@@ -133,9 +134,64 @@ public abstract class Strategy {
             return "Depth-first Search";
         }
     }
+    // Greedy
+    public static class StrategyGREEDY extends Strategy {
+        private ArrayList<State> frontier;
+        private HashSet<State> frontierSet;
+        Heuristic heuristic;
+        public StrategyGREEDY(Heuristic h) {
+            super();
+            frontier = new ArrayList<>();
+            frontierSet = new HashSet<>();
+            heuristic = h;
+        }
+        @Override
+        public State getAndRemoveLeaf() {
+            State n = frontier.get(0); 
+            frontier.remove(0);
+            System.err.println(n.toString());
 
+            return n;    
+        }
+
+        @Override
+        public void addToFrontier(State n) {
+            
+            int h = heuristic.h(n);
+            int pos = 0;
+
+            n.h = h;
+
+
+            for (int i = 0 ; i < frontier.size() ; i ++){
+                if (frontier.get(i).h >= h){
+                    pos = i;
+                    break;
+                }
+            }
+
+            frontier.add(pos,n);
+            frontierSet.add(n);
+        }
+
+        @Override
+        public int countFrontier() {
+            return frontier.size();
+        }
+
+        @Override
+        public boolean frontierIsEmpty() {
+            return frontier.isEmpty();
+        }
+
+        @Override
+        public boolean inFrontier(State n) {
+            return frontierSet.contains(n);
+        }
+
+        @Override
+        public String toString() {
+            return "Greedy Search";
+        }
+    }
 }
-
-
-
-//Greedy first

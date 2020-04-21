@@ -151,7 +151,7 @@ public class App {
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
 
-        Strategy strategy = new Strategy.StrategyBFS();
+        Strategy strategy = new Strategy.StrategyGREEDY(new Heuristic());
 
         ArrayList<State> solution;
         try {
