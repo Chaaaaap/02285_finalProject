@@ -131,57 +131,110 @@ public class State {
 
     public ArrayList<State> getExpandedStates() {
         ArrayList<State> expandedStates = new ArrayList<>(Command.EVERY.length);
-        for (Command c : Command.EVERY) {
-            // Determine applicability of action
-            int newAgentRow = this.agent.get(0).row + Command.dirToRowChange(c.dir1);
-            int newAgentCol = this.agent.get(0).col + Command.dirToColChange(c.dir1);
+        ArrayList<ArrayList<State>> listOfStateLists = new ArrayList<>();
+        for (int i = 0; i < this.agent.size(); i++) {
+            ArrayList<State> states = new ArrayList<>();
+            for (Command c : Command.EVERY) {
 
-            if (c.actionType == Command.Type.Move) {
-                // Check if there's a wall or box on the cell to which the agent is moving
+                // Determine applicability of action
+                int newAgentRow = this.agent.get(i).row + Command.dirToRowChange(c.dir1);
+                int newAgentCol = this.agent.get(i).col + Command.dirToColChange(c.dir1);
 
-                if (this.cellIsFree(newAgentRow, newAgentCol)) {
-                    State n = this.ChildState();
-                    n.action = c;
-                    n.agent.get(0).row = newAgentRow;
-                    n.agent.get(0).col = newAgentCol;
-                    expandedStates.add(n);
-                }
-            } else if (c.actionType == Command.Type.Push) {
-                // Make sure that there's actually a box to move
-                if (this.boxAt(newAgentRow, newAgentCol)) {
-                    int newBoxRow = newAgentRow + Command.dirToRowChange(c.dir2);
-                    int newBoxCol = newAgentCol + Command.dirToColChange(c.dir2);
-                    // .. and that new cell of box is free
-                    if (this.cellIsFree(newBoxRow, newBoxCol)) {
+                if (c.actionType == Command.Type.Move) {
+                    // Check if there's a wall or box on the cell to which the agent is moving
+
+                    if (this.cellIsFree(newAgentRow, newAgentCol)) {
                         State n = this.ChildState();
                         n.action = c;
-                        n.agent.get(0).row = newAgentRow;
-                        n.agent.get(0).col = newAgentCol;
-                        n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
-                        n.boxes[newAgentRow][newAgentCol] = null;
+                        n.agent.get(i).row = newAgentRow;
+                        n.agent.get(i).col = newAgentCol;
                         expandedStates.add(n);
+                        // states.add(n);
+                    }
+                } else if (c.actionType == Command.Type.Push) {
+                    // Make sure that there's actually a box to move
+                    if (this.boxAt(newAgentRow, newAgentCol)) {
+                        int newBoxRow = newAgentRow + Command.dirToRowChange(c.dir2);
+                        int newBoxCol = newAgentCol + Command.dirToColChange(c.dir2);
+                        // .. and that new cell of box is free
+                        if (this.cellIsFree(newBoxRow, newBoxCol)) {
+                            State n = this.ChildState();
+                            n.action = c;
+                            n.agent.get(i).row = newAgentRow;
+                            n.agent.get(i).col = newAgentCol;
+                            n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
+                            n.boxes[newAgentRow][newAgentCol] = null;
+                            expandedStates.add(n);
+                            // states.add(n);
+                        }
+                    }
+                } else if (c.actionType == Command.Type.Pull) {
+                    // Cell is free where agent is going
+                    if (this.cellIsFree(newAgentRow, newAgentCol)) {
+                        int boxRow = this.agent.get(i).row + Command.dirToRowChange(c.dir2);
+                        int boxCol = this.agent.get(i).col + Command.dirToColChange(c.dir2);
+                        // .. and there's a box in "dir2" of the agent
+                        if (this.boxAt(boxRow, boxCol)) {
+                            State n = this.ChildState();
+                            n.action = c;
+                            n.agent.get(i).row = newAgentRow;
+                            n.agent.get(i).col = newAgentCol;
+                            n.boxes[this.agent.get(i).row][this.agent.get(i).col] = this.boxes[boxRow][boxCol];
+                            n.boxes[boxRow][boxCol] = null;
+                            expandedStates.add(n);
+                            // states.add(n);
+                        }
                     }
                 }
-            } else if (c.actionType == Command.Type.Pull) {
-                // Cell is free where agent is going
-                if (this.cellIsFree(newAgentRow, newAgentCol)) {
-                    int boxRow = this.agent.get(0).row + Command.dirToRowChange(c.dir2);
-                    int boxCol = this.agent.get(0).col + Command.dirToColChange(c.dir2);
-                    // .. and there's a box in "dir2" of the agent
-                    if (this.boxAt(boxRow, boxCol)) {
-                        State n = this.ChildState();
-                        n.action = c;
-                        n.agent.get(0).row = newAgentRow;
-                        n.agent.get(0).col = newAgentCol;
-                        n.boxes[this.agent.get(0).row][this.agent.get(0).col] = this.boxes[boxRow][boxCol];
-                        n.boxes[boxRow][boxCol] = null;
-                        expandedStates.add(n);
-                    }
-                }
+                // listOfStateLists.add(states);
             }
         }
         Collections.shuffle(expandedStates, RNG);
         return expandedStates;
+    }
+
+    public void findEveryState(ArrayList<ArrayList<State>> commandList, State state) {
+        int[] indices = new int[commandList.size()];
+
+        while (true) {
+            for (int i = 0; i < commandList.size(); i++) {
+                return;
+            }
+        }
+    }
+
+    public State combineTwoStates(State s1, State s2, State currentState) {
+        State newState = ChildState();
+        for (int i = 0; i < s1.agent.size(); i++) {
+            for (int j = 0; j < s2.agent.size(); j++) {
+                if (s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row
+                        && !s1.equals(s2)) {
+                    return null;
+                }
+                if (!s1.agent.get(i).equals(s2.agent.get(j))) {
+                    newState.agent.set(i, s1.agent.get(i));
+                    newState.agent.set(j, s2.agent.get(j));
+                }
+            }
+        }
+        if (s1.action.actionType == Command.Type.Pull || s1.action.actionType == Command.Type.Push
+                || s2.action.actionType == Command.Type.Pull || s2.action.actionType == Command.Type.Push) {
+
+            for (int i = 0; i < s1.boxes.length; i++) {
+                for (int j = 0; j < s1.boxes[i].length; j++) {
+                    if (s1.boxes[i][j] != null && s2.boxes[i][j] != null && !s1.boxes[i][j].equals(s2.boxes[i][j])) {
+                        return null;
+                    }
+                    if (!newState.boxes[i][j].equals(s1.boxes[i][j])) {
+                        newState.boxes[i][j] = s1.boxes[i][j];
+                    }
+                    if (!newState.boxes[i][j].equals(s2.boxes[i][j])) {
+                        newState.boxes[i][j] = s2.boxes[i][j];
+                    }
+                }
+            }
+        }
+        return newState;
     }
 
     public class Box {
@@ -224,8 +277,10 @@ public class State {
         if (this._hash == 0) {
             final int prime = 31;
             int result = 1;
-            result = prime * result + this.agent.get(0).col;
-            result = prime * result + this.agent.get(0).row;
+            for (Agent a : this.agent) {
+                result = prime * result + a.col;
+                result = prime * result + a.row;
+            }
             result = prime * result + Arrays.deepHashCode(this.boxes);
             result = prime * result + Arrays.deepHashCode(this.goals);
             result = prime * result + Arrays.deepHashCode(this.walls);
