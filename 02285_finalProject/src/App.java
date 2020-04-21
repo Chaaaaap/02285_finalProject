@@ -151,7 +151,28 @@ public class App {
         // Read level and create the initial state of the problem
         App app = new App(serverMessages);
 
-        Strategy strategy = new Strategy.StrategyGREEDY(new Heuristic());
+        Strategy strategy;
+        if (args.length > 0) {
+            switch (args[0].toLowerCase()) {
+                case "-bfs":
+                    strategy = new Strategy.StrategyBFS();
+                    break;
+                case "-dfs":
+                    strategy = new Strategy.StrategyDFS();
+                    break;
+                case "-greedy":
+                    strategy = new Strategy.StrategyGREEDY(new Heuristic());
+                    break;
+                default:
+                    strategy = new Strategy.StrategyBFS();
+                    System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs, -astar, -wastar, or -greedy to set the search strategy.");
+            }
+        } else {
+            strategy = new Strategy.StrategyBFS();
+            System.err.println("Defaulting to BFS search. Use arguments -bfs, -dfs or -greedy to set the search strategy.");
+        }
+
+        
 
         ArrayList<State> solution;
         try {
