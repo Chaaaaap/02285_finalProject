@@ -26,7 +26,9 @@ public abstract class Strategy {
     }
 
     public String searchStatus() {
-        return String.format("#Explored: %,6d, #Frontier: %,6d, #Generated: %,6d, Time: %3.2f s \t%s", this.countExplored(), this.countFrontier(), this.countExplored()+this.countFrontier(), this.timeSpent(), Memory.stringRep());
+        return String.format("#Explored: %,6d, #Frontier: %,6d, #Generated: %,6d, Time: %3.2f s \t%s",
+                this.countExplored(), this.countFrontier(), this.countExplored() + this.countFrontier(),
+                this.timeSpent(), Memory.stringRep());
     }
 
     public float timeSpent() {
@@ -46,7 +48,7 @@ public abstract class Strategy {
     @Override
     public abstract String toString();
 
-    //BFS
+    // BFS
     public static class StrategyBFS extends Strategy {
         private ArrayDeque<State> frontier;
         private HashSet<State> frontierSet;
@@ -91,10 +93,11 @@ public abstract class Strategy {
         }
     }
 
-    //DFS
+    // DFS
     public static class StrategyDFS extends Strategy {
         private Stack<State> frontier;
         private HashSet<State> frontierSet;
+
         public StrategyDFS() {
             super();
             frontier = new Stack<>();
@@ -105,7 +108,7 @@ public abstract class Strategy {
         public State getAndRemoveLeaf() {
             State n = frontier.pop();
             frontierSet.remove(n);
-            return n;    
+            return n;
         }
 
         @Override
@@ -134,43 +137,44 @@ public abstract class Strategy {
             return "Depth-first Search";
         }
     }
+
     // Greedy
     public static class StrategyGREEDY extends Strategy {
         private ArrayList<State> frontier;
         private HashSet<State> frontierSet;
         Heuristic heuristic;
+
         public StrategyGREEDY(Heuristic h) {
             super();
             frontier = new ArrayList<>();
             frontierSet = new HashSet<>();
             heuristic = h;
         }
+
         @Override
         public State getAndRemoveLeaf() {
-            State n = frontier.get(0); 
+            State n = frontier.get(0);
             frontier.remove(0);
-            System.err.println(n.toString());
 
-            return n;    
+            return n;
         }
 
         @Override
         public void addToFrontier(State n) {
-            
+
             int h = heuristic.h(n);
             int pos = 0;
 
             n.h = h;
 
-
-            for (int i = 0 ; i < frontier.size() ; i ++){
-                if (frontier.get(i).h >= h){
+            for (int i = 0; i < frontier.size(); i++) {
+                if (frontier.get(i).h >= h) {
                     pos = i;
                     break;
                 }
             }
 
-            frontier.add(pos,n);
+            frontier.add(pos, n);
             frontierSet.add(n);
         }
 

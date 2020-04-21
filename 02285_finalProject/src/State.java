@@ -18,49 +18,49 @@ public class State {
 
     public static String levelName;
     public static String domain;
-    
+
     public static int MAX_ROW = 70;
     public static int MAX_COL = 70;
-    
+
     public static boolean[][] walls = new boolean[MAX_ROW][MAX_COL];
     public Box[][] boxes = new Box[MAX_ROW][MAX_COL];
     public static char[][] goals = new char[MAX_ROW][MAX_COL];
     public ArrayList<Box> box = new ArrayList<>();
 
-    //public Agent[][] agents = new Agent[MAX_ROW][MAX_COL];
+    // public Agent[][] agents = new Agent[MAX_ROW][MAX_COL];
     public ArrayList<Agent> agent = new ArrayList<>();
 
     public State parent;
     public Command action;
 
-    public State() {    }
+    public State() {
+    }
 
     public State(State parent) {
         this.parent = parent;
     }
 
-    public void addBox(String color, char chr){
+    public void addBox(String color, char chr) {
         box.add(new Box(color, chr));
     }
 
-
-    public void addAgent(String color, char chr){
+    public void addAgent(String color, char chr) {
         agent.add(new Agent(color, chr));
     }
 
-    public void updateAgent(char name, int row, int col){
+    public void updateAgent(char name, int row, int col) {
         for (int i = 0; i < agent.size(); i++) {
-            if((int)agent.get(i).name == (int)name){
+            if ((int) agent.get(i).name == (int) name) {
                 agent.get(i).row = row;
                 agent.get(i).col = col;
             }
         }
     }
 
-    public void updateBox(char name, int row, int col){
+    public void updateBox(char name, int row, int col) {
         for (int i = 0; i < box.size(); i++) {
-            if((int)box.get(i).name == (int)name){
-                 
+            if ((int) box.get(i).name == (int) name) {
+
                 boxes[row][col] = box.get(i);
                 box.remove(i);
             }
@@ -71,13 +71,11 @@ public class State {
         for (int row = 1; row < MAX_ROW - 1; row++) {
             for (int col = 1; col < MAX_COL - 1; col++) {
                 char g = goals[row][col];
-                if(boxes[row][col] == null && g > 0){
+                if (boxes[row][col] == null && g > 0) {
                     return false;
-                }
-                else if(boxes[row][col] == null){
+                } else if (boxes[row][col] == null) {
                     continue;
-                }
-                else{
+                } else {
                     char b = (boxes[row][col].name);
                     if (g > 0 && b != g) {
                         return false;
@@ -93,7 +91,7 @@ public class State {
     }
 
     private boolean cellIsFree(int row, int col) {
-        return !State.walls[row][col] && this.boxes[row][col]== null;
+        return !State.walls[row][col] && this.boxes[row][col] == null;
     }
 
     private boolean boxAt(int row, int col) {
@@ -101,7 +99,7 @@ public class State {
     }
 
     public ArrayList<State> extractPlan() {
-		ArrayList<State> plan = new ArrayList<>();
+        ArrayList<State> plan = new ArrayList<>();
         State n = this;
         while (!n.isInitialState()) {
             plan.add(n);
@@ -119,19 +117,20 @@ public class State {
             System.arraycopy(this.goals[row], 0, copy.goals[row], 0, MAX_COL);
         }
 
-        try{
+        try {
             ArrayList<Agent> clone = new ArrayList<Agent>(agent.size());
-            for (Agent item : agent) clone.add((Agent) item.clone());
+            for (Agent item : agent)
+                clone.add((Agent) item.clone());
             copy.agent = clone;
         } catch (Exception e) {
-            //TODO: handle exception
+            // TODO: handle exception
         }
-        
+
         return copy;
     }
 
     public ArrayList<State> getExpandedStates() {
-        ArrayList<State> expandedStates = new ArrayList<>(Command.EVERY.length);    
+        ArrayList<State> expandedStates = new ArrayList<>(Command.EVERY.length);
         for (Command c : Command.EVERY) {
             // Determine applicability of action
             int newAgentRow = this.agent.get(0).row + Command.dirToRowChange(c.dir1);
@@ -139,7 +138,7 @@ public class State {
 
             if (c.actionType == Command.Type.Move) {
                 // Check if there's a wall or box on the cell to which the agent is moving
-                
+
                 if (this.cellIsFree(newAgentRow, newAgentCol)) {
                     State n = this.ChildState();
                     n.action = c;
@@ -185,13 +184,11 @@ public class State {
         return expandedStates;
     }
 
-    public class Box{
+    public class Box {
         public String color;
         public char name;
 
-        
-
-        public Box(String color, char name){
+        public Box(String color, char name) {
             this.color = color;
             this.name = name;
         }
@@ -210,11 +207,10 @@ public class State {
                 } else if (this.goals[row][col] > 0) {
                     s.append(Character.toLowerCase(this.goals[row][col]));
                 } else if (this.walls[row][col]) {
-                    s.append("+");               
-                } else if(agent.get(0).row == row && agent.get(0).col == col){
+                    s.append("+");
+                } else if (agent.get(0).row == row && agent.get(0).col == col) {
                     s.append("0");
-                }
-                else {
+                } else {
                     s.append(" ");
                 }
             }
@@ -241,9 +237,21 @@ public class State {
 
     @Override
     public boolean equals(Object obj) {
-        return this._hash ==  obj.hashCode();
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (this.getClass() != obj.getClass())
+            return false;
+        State other = (State) obj;
+        if (Arrays.deepEquals(this.agent.toArray(), other.agent.toArray()))
+            return false;
+        if (!Arrays.deepEquals(this.boxes, other.boxes))
+            return false;
+        if (!Arrays.deepEquals(goals, State.goals))
+            return false;
+        return Arrays.deepEquals(walls, State.walls);
     }
-
 
     public class Agent implements Cloneable {
         public String color;
@@ -251,25 +259,21 @@ public class State {
         public int row;
         public int col;
 
-        public Agent(String color, char name){
+        public Agent(String color, char name) {
             this.color = color;
             this.name = name;
         }
 
         @Override
-    protected Object clone() throws CloneNotSupportedException {
-        Agent clone = null;
-        try
-        {
-            clone = (Agent) super.clone();
-        } 
-        catch (CloneNotSupportedException e) 
-        {
-            throw new RuntimeException(e);
+        protected Object clone() throws CloneNotSupportedException {
+            Agent clone = null;
+            try {
+                clone = (Agent) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+            return clone;
         }
-        return clone;
-    }
-
 
         @Override
         public String toString() {
@@ -277,23 +281,23 @@ public class State {
         }
     }
 
-    public void cleanLevel(){
+    public void cleanLevel() {
 
         int rows = MAX_ROW;
         int cols = MAX_COL;
 
-        boolean[][] newWalls    = new boolean[rows][cols];
-        Box[][] newBoxes        = new Box[rows][cols];
-        char[][] newGoals       = new char[rows][cols];
-        
-        for (int row = 0 ; row < rows ; row++){
-            for (int col = 0 ; col < cols ; col++){
+        boolean[][] newWalls = new boolean[rows][cols];
+        Box[][] newBoxes = new Box[rows][cols];
+        char[][] newGoals = new char[rows][cols];
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
                 newWalls[row][col] = this.walls[row][col];
                 newBoxes[row][col] = this.boxes[row][col];
                 newGoals[row][col] = this.goals[row][col];
             }
         }
-        
+
         this.walls = newWalls;
         this.boxes = newBoxes;
         this.goals = newGoals;
