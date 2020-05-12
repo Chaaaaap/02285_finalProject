@@ -16,6 +16,8 @@ public class State {
     public int _hash = 0;
     public int h;
 
+    public static boolean isMultiLevel = true;
+
     public static String levelName;
     public static String domain;
 

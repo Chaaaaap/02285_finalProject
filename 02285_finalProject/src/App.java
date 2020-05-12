@@ -33,6 +33,9 @@ public class App {
                     break;
                 case "#levelname":
                     State.levelName = serverMessages.readLine();
+                    if (State.levelName.toLowerCase().startsWith("sa")) {
+                        State.isMultiLevel = false;
+                    }
                     line = serverMessages.readLine();
                     break;
                 case "#colors":
