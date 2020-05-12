@@ -1,4 +1,3 @@
-import java.util.AbstractMap;
 import java.util.ArrayList;
 
 public class Heuristic {
@@ -9,7 +8,7 @@ public class Heuristic {
     public int h(State n) {
         int manhattanDistance = 0;
 
-        ArrayList<State.Agent> agents = n.agent;
+        ArrayList<Agent> agents = n.agent;
         State.Box[][] boxes           = n.boxes;
         char[][] goals                = n.goals; 
 

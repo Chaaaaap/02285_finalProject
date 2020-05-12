@@ -13,7 +13,7 @@ public class App {
     public App(BufferedReader serverMessages) throws Exception {
 
         // Send client name to server via stdout stream
-        System.out.println("Client");
+        System.out.println("Mulle");
 
         // Reads lines of the level file provided as argument when running the server
         String line = serverMessages.readLine();
@@ -110,9 +110,12 @@ public class App {
 
     }
 
-    public ArrayList<State> Search(Strategy strategy) {
+    public ArrayList<State> Search(Strategy strategy, State initialS) {
+        if(initialS == null){
+            initialS = initialState;
+        }
         System.err.format("Search starting with strategy %s.\n", strategy.toString());
-        strategy.addToFrontier(this.initialState);
+        strategy.addToFrontier(initialS);
 
         int iterations = 0;
         while (true) {
@@ -140,6 +143,29 @@ public class App {
             }
             iterations++;
         }
+    }
+
+    public ArrayList<State> MultiSearch(Strategy strategy){
+        ArrayList<State> initialStates = new ArrayList<>();
+
+        for (Agent agent : initialState.agent) {
+            initialStates.add(initialState.findInitial(agent));
+        }
+
+        ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
+ 
+        for (State state : initialStates) {
+            allPlans.add(Search(strategy, state));
+        }
+
+        Merger merger = new Merger(initialState);
+        merger.SuperMerger(allPlans);        
+
+        //Vælg bedste løsning for alle boxe (contract net protocol)
+
+        //Merge soltions for all agent into one 'perfect' solution
+        
+        return null;
     }
 
     public static void main(String[] args) throws Exception {
@@ -176,7 +202,12 @@ public class App {
 
         ArrayList<State> solution;
         try {
-            solution = app.Search(strategy);
+            if(State.isMultiLevel){
+                solution = app.MultiSearch(strategy);
+            }
+            else{
+                solution = app.Search(strategy, null);
+            }
         } catch (OutOfMemoryError ex) {
             System.err.println("Maximum memory usage exceeded.");
             solution = null;
