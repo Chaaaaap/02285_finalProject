@@ -64,7 +64,7 @@ public class State {
             if ((int) box.get(i).name == (int) name) {
 
                 boxes[row][col] = box.get(i);
-                box.remove(i);
+                //box.remove(i);
             }
         }
     }
@@ -311,12 +311,14 @@ public class State {
                     int c = row;
                     int d = col;
                     Box tempBox = box.stream().filter(b->b.name == this.goals[c][d]).findFirst().orElse(null);
-                    Agent[] tempAgents = (Agent[]) agent.stream().filter(a->a.color == tempBox.color).toArray();
-                    for (Agent agent : tempAgents) {
-                        if(agent.goals == null){
-                            agent.goals = new char[rows][cols];
+                    if (tempBox != null){
+                        Agent[] tempAgents = (Agent[]) agent.stream().filter(a->a.color.equals(tempBox.color)).toArray(Agent[]::new);
+                        for (Agent agent : tempAgents) {
+                            if(agent.goals == null){
+                                agent.goals = new char[rows][cols];
+                            }
+                            agent.goals[row][col] = goals[row][col];
                         }
-                        agent.goals[row][col] = goals[row][col];
                     }
                 }
                 newWalls[row][col] = this.walls[row][col];
