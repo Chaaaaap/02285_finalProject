@@ -237,6 +237,11 @@ public class State {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
+        s.append("Domain: " + this.domain + "\n");
+        s.append("LevelName: " + this.levelName + "\n");
+
+
+
         for (int row = 0; row < MAX_ROW; row++) {
             if (!this.walls[row][0]) {
                 break;
@@ -256,6 +261,11 @@ public class State {
             }
             s.append("\n");
         }
+
+        for (Agent agent : this.agent){
+            s.append(agent.toString());
+        }
+
         return s.toString();
     }
 
