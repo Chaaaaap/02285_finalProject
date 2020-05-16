@@ -1,0 +1,25 @@
+#domain
+comp20
+#levelname
+SA_Team_Mulle
+#colors
+blue: 0, A, B
+#initial
+++++++++
++0 A +B+
++  + + +
++  + + +
++  + + +
++  + + +
++  + A +
+++++++++
+#goal
+++++++++
++0   + +
++  + + +
++ B+A+A+
++  + + +
++  + + +
++  +   +
+++++++++
+#end
