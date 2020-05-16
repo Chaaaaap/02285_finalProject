@@ -34,6 +34,7 @@ public class State {
 
     public State parent;
     public Command action;
+    public ArrayList<Command> commands;
 
     public State() {
     }
@@ -132,7 +133,7 @@ public class State {
     }
 
     public ArrayList<State> getExpandedStates() {
-        ArrayList<State> expandedStates = new ArrayList<>(Command.EVERY.length);
+        ArrayList<State> expandedStates = new ArrayList<>();
             ArrayList<State> states = new ArrayList<>();
             for (Command c : Command.EVERY) {
 
@@ -189,38 +190,59 @@ public class State {
     }
 
 
-    //TODO fix this method - combine states totally 
+    //TODO check også for agent og box på samme felt
     public State combineTwoStates(State s1, State s2) {
+        System.err.println(s1);
+        System.err.println("S2: ");
+        System.err.println(s2);
         State newState = ChildState();
+
         for (int i = 0; i < s1.agent.size(); i++) {
-            for (int j = 0; j < s2.agent.size(); j++) {
-                if (s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row
-                        && !s1.equals(s2)) {
-                    return null;
+            for (int j = 0; j < s2.agent.size(); j++) {     
+                if(s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row){
+                    if(s1.agent.get(i).name != s2.agent.get(j).name){
+                        return null;
+                    }
                 }
-                if (!s1.agent.get(i).equals(s2.agent.get(j))) {
-                    newState.agent.set(i, s1.agent.get(i));
+
+                if(s1.agent.get(i).name == s2.agent.get(j).name){
                     newState.agent.set(j, s2.agent.get(j));
                 }
+                else{
+                    newState.agent.set(i, s1.agent.get(i));
+                }
+
+
+                
             }
         }
-        if (s1.action.actionType == Command.Type.Pull || s1.action.actionType == Command.Type.Push
-                || s2.action.actionType == Command.Type.Pull || s2.action.actionType == Command.Type.Push) {
+
+        //This if should be tested
+        if (s2.action.actionType == Command.Type.Pull || s2.action.actionType == Command.Type.Push) {
 
             for (int i = 0; i < s1.boxes.length; i++) {
                 for (int j = 0; j < s1.boxes[i].length; j++) {
                     if (s1.boxes[i][j] != null && s2.boxes[i][j] != null && !s1.boxes[i][j].equals(s2.boxes[i][j])) {
                         return null;
                     }
-                    if (!newState.boxes[i][j].equals(s1.boxes[i][j])) {
-                        newState.boxes[i][j] = s1.boxes[i][j];
-                    }
-                    if (!newState.boxes[i][j].equals(s2.boxes[i][j])) {
+                    // if (newState.boxes[i][j] == null) {
+                    //     newState.boxes[i][j] = s1.boxes[i][j];
+
+                    //     System.err.println((s1.action));
+                    //     System.err.println(j+(-1*Command.dirToColChange(s1.action.dir2)));
+                    //     newState.boxes[i+(-1*Command.dirToRowChange(s1.action.dir2))]
+                    //                   [j+(-1*Command.dirToColChange(s1.action.dir2))]= null;                 
+                    // }
+                 
+                    if (newState.boxes[i][j] == null && s2.boxes[i][j] != null) {
                         newState.boxes[i][j] = s2.boxes[i][j];
+                        newState.boxes[i+(-1*Command.dirToRowChange(s2.action.dir2))]
+                                      [j+(-1*Command.dirToColChange(s2.action.dir2))]= null; 
                     }
                 }
             }
         }
+        System.err.println(newState);
         return newState;
     }
 
@@ -254,7 +276,7 @@ public class State {
                 } else if (this.walls[row][col]) {
                     s.append("+");
                 } else if (agent.get(0).row == row && agent.get(0).col == col) {
-                    s.append("0");
+                    s.append(agent.get(0).name);
                 } else {
                     s.append(" ");
                 }
@@ -360,13 +382,16 @@ public class State {
                     int c = row;
                     int d = col;
                     Box tempBox = box.stream().filter(b->b.name == this.goals[c][d]).findFirst().orElse(null);
-                    if(tempBox.color == iniAgent.color){
+                    if(tempBox.color.equals(iniAgent.color)){
                         ini.goals[row][col] = this.goals[row][col];
                     }                    
                 }
-                if(this.boxes[row][col].color == iniAgent.color){
-                    ini.boxes[row][col] = this.boxes[row][col];
+                if(this.boxes[row][col] != null){
+                    if(this.boxes[row][col].color.equals(iniAgent.color)){
+                        ini.boxes[row][col] = this.boxes[row][col];
+                    }
                 }
+                
             }
         }
         return ini;

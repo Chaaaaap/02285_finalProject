@@ -19,14 +19,27 @@ public class Test {
 
         Merger merger = new Merger(new State());
         
-        State state1 = initializeState("SATest_Merge1");
-        State state2 = initializeState("SATest_Merge3");
+        State stateAll = initializeState("MATest_merge1");
+        //State state1 = initializeState("SATest_Merge1");
+        //State state2 = initializeState("SATest_Merge3");
 
-        ArrayList<State> states = new ArrayList<>();
-        states.add(state2);
+        State state1 = stateAll.findInitial(new Agent("blue", '0'));
 
-        ArrayList<Action> actions = merger.merge(state1, states);
+        System.out.println(state1);
 
+
+        //state1.action = new Command(Command.Dir.S);
+        //state2.action = new Command(Command.Dir.W);
+
+        //ArrayList<State> states = new ArrayList<>();
+        //states.add(state1);
+        //states.add(state2);
+
+        //ArrayList<Command> actions = merger.merge(stateAll, states);
+
+        // for (Command command : actions) {
+        //     System.out.println(command);
+        // }
     }
 
     public State initializeState(String level){
@@ -35,7 +48,7 @@ public class Test {
 
         try {  
             //the file to be opened for reading  
-            FileInputStream fis=new FileInputStream(".\\level\\" + level + ".lvl");       
+            FileInputStream fis=new FileInputStream("..\\level\\" + level + ".lvl");       
             Scanner sc=new Scanner(fis);    //file to be scanned  
             //returns true if there is another line to read  
 

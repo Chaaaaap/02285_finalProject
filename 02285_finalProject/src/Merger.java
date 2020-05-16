@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Merger {
 
@@ -9,30 +11,53 @@ public class Merger {
         this.preState = preState;
     }
 
-    public ArrayList<Action> merge(State preState, ArrayList<State> states) {
+    public ArrayList<Command> merge(State preState, ArrayList<State> states) {
         State tempState;
         tempState = preState;
-        ArrayList<Action> actions = new ArrayList<>();
-        //Lav command om til action
-        //Add action for states(1) to action list
+        ArrayList<Command> actions = new ArrayList<>();
         for (int i = 0; i < states.size(); i++) {
-            State tmp = states.get(i).combineTwoStates(tempState, states.get(i));
-            if(tmp == null){
-                actions.add(new NoOp());
+            if(states.get(i) != null){
+                State tmp = tempState.combineTwoStates(tempState, states.get(i));       
+                if(tmp == null){
+                    actions.add(new Command());
+                }
+                else{
+                    tempState = tmp;
+                    indices[i]++;
+                    actions.add(states.get(i).action);
+                }
             }
             else{
-                tempState = tmp;
-                indices[i]++;
-                //Add command to action here for state.get(i)
+                actions.add(new Command());
             }
         }
-        //Hold styr på index for hver solution -> 
-        preState = tempState;
+        this.preState = tempState;
+        String listString = actions.stream().map(Object::toString)
+                        .collect(Collectors.joining(";"));
+        System.out.println(listString);
+
         return actions;
     }
 
     public void SuperMerger(ArrayList<ArrayList<State>> states){
+        System.err.println(preState);
         indices = new int[states.size()];
+        while(true){
+            ArrayList<State> oneStepStates = new ArrayList<>();
+            for (int i = 0; i < states.size(); i++) {
+                if(indices[i] < states.get(i).size()){
+                    oneStepStates.add(states.get(i).get(indices[i]));
+                }
+                else{
+                    oneStepStates.add(null);
+                }
+            }
+            preState.commands = merge(preState, oneStepStates);
+            System.err.println(preState);
+            if(preState.isGoalState()){
+                return;
+            }
+        }
         //Merge hele planer for alle agenter
         //Lav liste af states ud fra indices
         //Kald merge

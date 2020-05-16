@@ -3,13 +3,13 @@
 import java.util.ArrayList;
 
 public class Command {
-    // Order of enum important for determining opposites.
+    //Order of enum important for determining opposites.
     public enum Dir {
         N, W, E, S
     }
 
     public enum Type {
-        Move, Push, Pull
+        Move, Push, Pull, NoOp
     }
 
     public static final Command[] EVERY;
@@ -68,21 +68,30 @@ public class Command {
     public final Dir dir1;
     public final Dir dir2;
 
-    private Command(Dir d) {
+    public Command(Dir d) {
         this.actionType = Type.Move;
         this.dir1 = d;
         this.dir2 = null;
     }
 
-    private Command(Type t, Dir d1, Dir d2) {
+    public Command(Type t, Dir d1, Dir d2) {
         this.actionType = t;
         this.dir1 = d1;
         this.dir2 = d2;
     }
 
+    public Command(){
+        this.actionType = Type.NoOp;
+        this.dir1=null;
+        this.dir2=null;
+    }
+
     @Override
     public String toString() {
-        if (this.actionType == Type.Move)
+        if(this.actionType == Type.NoOp){
+            return "NoOp";
+        }
+        else if (this.actionType == Type.Move)
             return String.format("%s(%s)", this.actionType.toString(), this.dir1.toString());
         else
             return String.format("%s(%s,%s)", this.actionType.toString(), this.dir1.toString(), this.dir2.toString());

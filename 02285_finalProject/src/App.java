@@ -155,15 +155,13 @@ public class App {
         ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
  
         for (State state : initialStates) {
+            strategy = new Strategy.StrategyBFS();
             allPlans.add(Search(strategy, state));
-        }
+            
+        } 
 
         Merger merger = new Merger(initialState);
         merger.SuperMerger(allPlans);        
-
-        //Vælg bedste løsning for alle boxe (contract net protocol)
-
-        //Merge soltions for all agent into one 'perfect' solution
         
         return null;
     }
