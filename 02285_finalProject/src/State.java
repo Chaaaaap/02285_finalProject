@@ -199,9 +199,6 @@ public class State {
 
     public State combineTwoStates(State s1, State s2) {
         State newState = s1.ChildState();
-        System.err.println(newState);
-        System.err.println();
-        System.err.println(s2);
         for (int i = 0; i < s1.agent.size(); i++) {
             for (int j = 0; j < s2.agent.size(); j++) {     
                 if(s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row){
