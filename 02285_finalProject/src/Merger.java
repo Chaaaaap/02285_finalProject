@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class Merger {
@@ -39,7 +38,7 @@ public class Merger {
         return actions;
     }
 
-    public void SuperMerger(ArrayList<ArrayList<State>> states){
+    public State SuperMerger(ArrayList<ArrayList<State>> states){
         System.err.println(preState);
         indices = new int[states.size()];
         while(true){
@@ -49,13 +48,28 @@ public class Merger {
                     oneStepStates.add(states.get(i).get(indices[i]));
                 }
                 else{
+                    preState.agent.get(i).isDone = true;
                     oneStepStates.add(null);
                 }
             }
-            preState.commands = merge(preState, oneStepStates);
-            System.err.println(preState);
+            System.err.println(preState.commands);
+            ArrayList<Command> temp = merge(preState, oneStepStates);
+            
             if(preState.isGoalState()){
-                return;
+                return preState;
+            }
+
+            if(temp.stream().filter(c->c.actionType == Command.Type.NoOp).count() == temp.size()){
+                
+                for (int i = 0; i < states.size(); i++) {
+                    if(indices[i] < states.get(i).size()){
+                        new Communicator().pleaseMove(preState, states.get(i).get(indices[i]));                        
+                    }
+                    
+                }
+                
+
+                return preState;
             }
         }
         //Merge hele planer for alle agenter

@@ -206,14 +206,12 @@ public class State {
                 }
 
                 if(s1.agent.get(i).name == s2.agent.get(j).name){
-                    newState.agent.set(j, s2.agent.get(j));
+                    newState.agent.set(i, s2.agent.get(j));
                 }
                 else{
                     newState.agent.set(i, s1.agent.get(i));
                 }
-
-
-                
+               
             }
         }
 

@@ -5,6 +5,8 @@ public class Agent implements Cloneable{
     public int row;
     public int col;
 
+    public boolean isDone = false;
+
     public char[][] goals;
 
     public Agent(String color, char name) {
@@ -28,13 +30,13 @@ public class Agent implements Cloneable{
 
         StringBuilder s = new StringBuilder();
 
-        for (int row = 0 ; row < this.goals.length ; row++){
-            for (int col = 0 ; col < this.goals[row].length ; col++){
-                if (this.goals[row][col] > 0){
-                    s.append("Goal: " + this.goals[row][col] + ", row: " + row + ", col: " +col + "\n");
-                }
-            }
-        }
+        // for (int row = 0 ; row < this.goals.length ; row++){
+        //     for (int col = 0 ; col < this.goals[row].length ; col++){
+        //         if (this.goals[row][col] > 0){
+        //             s.append("Goal: " + this.goals[row][col] + ", row: " + row + ", col: " +col + "\n");
+        //         }
+        //     }
+        // }
 
         return "Agent Color: " + color + ", name: " + name + ", row: " + row + ", col: " + col + "\n" + s.toString();
     }

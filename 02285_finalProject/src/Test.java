@@ -20,13 +20,7 @@ public class Test {
         Merger merger = new Merger(new State());
         
         State stateAll = initializeState("MATest_merge1");
-        //State state1 = initializeState("SATest_Merge1");
-        //State state2 = initializeState("SATest_Merge3");
-
-        State state1 = stateAll.findInitial(new Agent("blue", '0'));
-
-        System.out.println(state1);
-
+        
 
         //state1.action = new Command(Command.Dir.S);
         //state2.action = new Command(Command.Dir.W);

@@ -148,22 +148,37 @@ public class App {
     public ArrayList<State> MultiSearch(Strategy strategy){
         ArrayList<State> initialStates = new ArrayList<>();
 
-        for (Agent agent : initialState.agent) {
-            initialStates.add(initialState.findInitial(agent));
+        State tempState = initialState;
+
+        while(!tempState.isGoalState()){
+            if(!tempState.equals(initialState)){
+                //Fix conflict -> communicator
+                //Find conlict
+                //Fix for hver conflict en agent skal rykke sig væk fra sin plan.
+                //Replan herfra
+            }
+            
+            for (Agent agent : tempState.agent) {
+                initialStates.add(tempState.findInitial(agent));
+            }
+    
+            ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
+     
+            for (State state : initialStates) {
+                strategy = new Strategy.StrategyBFS();
+                allPlans.add(Search(strategy, state));
+                
+            } 
+    
+            Merger merger = new Merger(initialState);
+            tempState = merger.SuperMerger(allPlans);  
+                                    
         }
 
-        ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
- 
-        for (State state : initialStates) {
-            strategy = new Strategy.StrategyBFS();
-            allPlans.add(Search(strategy, state));
-            
-        } 
-
-        Merger merger = new Merger(initialState);
-        merger.SuperMerger(allPlans);        
-        
         return null;
+
+        
+        
     }
 
     public static void main(String[] args) throws Exception {
