@@ -16,14 +16,20 @@ public class Merger {
         ArrayList<Command> actions = new ArrayList<>();
         for (int i = 0; i < states.size(); i++) {
             if(states.get(i) != null){
-                State tmp = tempState.combineTwoStates(tempState, states.get(i));       
+                State tmp = tempState.combineTwoStates(preState, states.get(i));                      
                 if(tmp == null){
                     actions.add(new Command());
                 }
                 else{
-                    tempState = tmp;
-                    indices[i]++;
-                    actions.add(states.get(i).action);
+                    tmp = tempState.combineTwoStates(tempState, states.get(i));   
+                    if(tmp == null){
+                        actions.add(new Command());
+                    }
+                    else{
+                        tempState = tmp;
+                        indices[i]++;
+                        actions.add(states.get(i).action);
+                    }
                 }
             }
             else{
@@ -31,6 +37,7 @@ public class Merger {
             }
         }
         this.preState = tempState;
+        System.err.println(actions);
         String listString = actions.stream().map(Object::toString)
                         .collect(Collectors.joining(";"));
         System.out.println(listString);
@@ -39,7 +46,6 @@ public class Merger {
     }
 
     public State SuperMerger(ArrayList<ArrayList<State>> states){
-        System.err.println(preState);
         indices = new int[states.size()];
         while(true){
             ArrayList<State> oneStepStates = new ArrayList<>();
@@ -48,11 +54,9 @@ public class Merger {
                     oneStepStates.add(states.get(i).get(indices[i]));
                 }
                 else{
-                    preState.agent.get(i).isDone = true;
                     oneStepStates.add(null);
                 }
             }
-            System.err.println(preState.commands);
             ArrayList<Command> temp = merge(preState, oneStepStates);
             
             if(preState.isGoalState()){
@@ -67,8 +71,6 @@ public class Merger {
                     }
                     
                 }
-                
-
                 return preState;
             }
         }

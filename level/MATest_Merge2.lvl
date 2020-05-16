@@ -1,0 +1,23 @@
+#domain
+hospital
+#levelname
+MATest
+#colors
+blue: 0, A
+green: 1, B
+red: 2, C
+#initial
++++++++++++++++++
++              0+
++    + +        +
++    + +2      A+
++ 1  + +C      B+
++++++++++++++++++
+#goal
++++++++++++++++++
++A              +
++    + +        +
++    + +        +
++    +C+ B      +
++++++++++++++++++
+#end

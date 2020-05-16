@@ -93,7 +93,14 @@ public class State {
         return this.parent == null;
     }
 
-    private boolean cellIsFree(int row, int col) {
+    private boolean cellIsFree(int row, int col, Agent ag) {
+        if(ag != null){
+            for (Agent a : agent) {
+                if(a.row == row && a.col == col && !a.color.equals(ag.color)){
+                    return false;
+                }
+            }
+        }
         return !State.walls[row][col] && this.boxes[row][col] == null;
     }
 
@@ -144,7 +151,7 @@ public class State {
                 if (c.actionType == Command.Type.Move) {
                     // Check if there's a wall or box on the cell to which the agent is moving
 
-                    if (this.cellIsFree(newAgentRow, newAgentCol)) {
+                    if (this.cellIsFree(newAgentRow, newAgentCol, null)) {
                         State n = this.ChildState();
                         n.action = c;
                         n.agent.get(0).row = newAgentRow;
@@ -157,7 +164,7 @@ public class State {
                         int newBoxRow = newAgentRow + Command.dirToRowChange(c.dir2);
                         int newBoxCol = newAgentCol + Command.dirToColChange(c.dir2);
                         // .. and that new cell of box is free
-                        if (this.cellIsFree(newBoxRow, newBoxCol)) {
+                        if (this.cellIsFree(newBoxRow, newBoxCol, null)) {
                             State n = this.ChildState();
                             n.action = c;
                             n.agent.get(0).row = newAgentRow;
@@ -169,7 +176,7 @@ public class State {
                     }
                 } else if (c.actionType == Command.Type.Pull) {
                     // Cell is free where agent is going
-                    if (this.cellIsFree(newAgentRow, newAgentCol)) {
+                    if (this.cellIsFree(newAgentRow, newAgentCol, null)) {
                         int boxRow = this.agent.get(0).row + Command.dirToRowChange(c.dir2);
                         int boxCol = this.agent.get(0).col + Command.dirToColChange(c.dir2);
                         // .. and there's a box in "dir2" of the agent
@@ -190,19 +197,22 @@ public class State {
     }
 
 
-    //TODO check også for agent og box på samme felt
     public State combineTwoStates(State s1, State s2) {
-        System.err.println(s1);
-        System.err.println("S2: ");
+        State newState = s1.ChildState();
+        System.err.println(newState);
+        System.err.println();
         System.err.println(s2);
-        State newState = ChildState();
-
         for (int i = 0; i < s1.agent.size(); i++) {
             for (int j = 0; j < s2.agent.size(); j++) {     
                 if(s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row){
                     if(s1.agent.get(i).name != s2.agent.get(j).name){
                         return null;
                     }
+                }
+
+                if(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col] != null && 
+                   !(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col].color.equals(s2.agent.get(j).color))){
+                    return null;
                 }
 
                 if(s1.agent.get(i).name == s2.agent.get(j).name){
@@ -223,24 +233,25 @@ public class State {
                     if (s1.boxes[i][j] != null && s2.boxes[i][j] != null && !s1.boxes[i][j].equals(s2.boxes[i][j])) {
                         return null;
                     }
-                    // if (newState.boxes[i][j] == null) {
-                    //     newState.boxes[i][j] = s1.boxes[i][j];
 
-                    //     System.err.println((s1.action));
-                    //     System.err.println(j+(-1*Command.dirToColChange(s1.action.dir2)));
-                    //     newState.boxes[i+(-1*Command.dirToRowChange(s1.action.dir2))]
-                    //                   [j+(-1*Command.dirToColChange(s1.action.dir2))]= null;                 
-                    // }
-                 
+                    if(s2.boxes[i][j] != null && !s1.cellIsFree(i, j, s2.agent.get(0))){
+                        return null;
+                    }
+
                     if (newState.boxes[i][j] == null && s2.boxes[i][j] != null) {
                         newState.boxes[i][j] = s2.boxes[i][j];
-                        newState.boxes[i+(-1*Command.dirToRowChange(s2.action.dir2))]
-                                      [j+(-1*Command.dirToColChange(s2.action.dir2))]= null; 
-                    }
+                        if(s2.action.actionType == Command.Type.Pull){    
+                            newState.boxes[(i+(Command.dirToRowChange(s2.action.dir2)))]
+                                          [(j+(Command.dirToColChange(s2.action.dir2)))]= null; 
+                        }
+                        else{
+                            newState.boxes[(i+(-1*Command.dirToRowChange(s2.action.dir2)))]
+                                          [(j+(-1*Command.dirToColChange(s2.action.dir2)))]= null; 
+                        } 
+                    } 
                 }
             }
         }
-        System.err.println(newState);
         return newState;
     }
 
@@ -380,8 +391,11 @@ public class State {
                     int c = row;
                     int d = col;
                     Box tempBox = box.stream().filter(b->b.name == this.goals[c][d]).findFirst().orElse(null);
-                    if(tempBox.color.equals(iniAgent.color)){
+                    if(tempBox != null && tempBox.color.equals(iniAgent.color)){
                         ini.goals[row][col] = this.goals[row][col];
+                    }
+                    else{
+                        
                     }                    
                 }
                 if(this.boxes[row][col] != null){

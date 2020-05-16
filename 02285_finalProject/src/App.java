@@ -114,7 +114,7 @@ public class App {
         if(initialS == null){
             initialS = initialState;
         }
-        System.err.format("Search starting with strategy %s.\n", strategy.toString());
+        //System.err.format("Search starting with strategy %s.\n", strategy.toString());
         strategy.addToFrontier(initialS);
 
         int iterations = 0;
@@ -146,18 +146,15 @@ public class App {
     }
 
     public ArrayList<State> MultiSearch(Strategy strategy){
-        ArrayList<State> initialStates = new ArrayList<>();
-
+        
         State tempState = initialState;
 
+        int counter = 0;
+
         while(!tempState.isGoalState()){
-            if(!tempState.equals(initialState)){
-                //Fix conflict -> communicator
-                //Find conlict
-                //Fix for hver conflict en agent skal rykke sig væk fra sin plan.
-                //Replan herfra
-            }
-            
+            ArrayList<State> initialStates = new ArrayList<>();
+            System.err.println("Tried to find goal: " + counter + " times");
+            System.err.println("HOW MANY AGENTS? " + tempState.agent.size());        
             for (Agent agent : tempState.agent) {
                 initialStates.add(tempState.findInitial(agent));
             }
@@ -172,6 +169,8 @@ public class App {
     
             Merger merger = new Merger(initialState);
             tempState = merger.SuperMerger(allPlans);  
+            counter++;
+            return null;
                                     
         }
 
