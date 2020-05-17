@@ -423,4 +423,17 @@ public class State {
         }
         return ini;
     }
+
+    public boolean isCellEmpty(int row, int col){
+        if (this.boxes[row][col] != null){
+            return false;
+        } else if (this.walls[row][col]) {
+            return false;
+        } else if (agent.stream().filter(a->a.col == col && a.row == row).count() > 0){
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }
