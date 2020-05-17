@@ -275,15 +275,33 @@ public class State {
                 break;
             }
             for (int col = 0; col < MAX_COL; col++) {
+                int coll = col; // Resloving: Local Variable Defined in an Enclosing Scope Must be Final or Effectively Final Error 
+                int roww = row; // For:  } else if (agent.stream().filter(a->a.col == coll && a.row == roww).count() > 0){
                 if (this.boxes[row][col] != null) {
                     s.append(this.boxes[row][col].name);
                 } else if (this.goals[row][col] > 0) {
                     s.append(Character.toLowerCase(this.goals[row][col]));
                 } else if (this.walls[row][col]) {
                     s.append("+");
-                } else if (agent.get(0).row == row && agent.get(0).col == col) {
-                    s.append(agent.get(0).name);
-                } else {
+                //} else if (agent.size() > 0){
+                //    for (int i = 0 ; i < agent.size() ; i ++){
+                //        if (agent.get(i).row == row && agent.get(i).col == col){
+                //            s.append(agent.get(i).name);
+                //        }
+                //    }
+                } else if (agent.stream().filter(a->a.col == coll && a.row == roww).count() > 0){
+                    Agent ag = agent.stream().filter(a->a.col == coll && a.row == roww).findFirst().orElse(null);
+                    if (ag != null){
+                        s.append(ag.name);
+                    } else {
+                        System.err.println("Agent is null in State.toString()");
+                    }
+
+                
+                //} else if (agent.get(0).row == row && agent.get(0).col == col) {
+                //    s.append(agent.get(0).name);
+                } 
+                else {
                     s.append(" ");
                 }
             }
