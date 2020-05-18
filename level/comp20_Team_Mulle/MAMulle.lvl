@@ -1,9 +1,10 @@
 #domain
-comp20
+hospital
 #levelname
-SA_Team_Mulle
+MAMulle
 #colors
-blue: 0, A, B
+blue: 0, A
+red: 1, B
 #initial
 ++++++++
 +0 A +B+
@@ -11,14 +12,14 @@ blue: 0, A, B
 +  + + +
 +  + + +
 +  + + +
-+  + A +
++1B+ A +
 ++++++++
 #goal
 ++++++++
-+0   + +
++    + +
 +  + + +
 + B+A+A+
-+  + + +
++ B+ + +
 +  + + +
 +  +   +
 ++++++++

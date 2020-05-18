@@ -1,25 +1,24 @@
 #domain
 hospital
 #levelname
-MA_Team_Mulle
+SAMulle
 #colors
-blue: 0, A
-red: 1, B
+blue: 0, A, B
 #initial
 ++++++++
 +0 A +B+
 +  + + +
-+  +   +
 +  + + +
 +  + + +
-+1B+ A +
++  + + +
++  + A +
 ++++++++
 #goal
 ++++++++
 +    + +
 +  + + +
-+ B+A A+
-+ B+ + +
++ B+A+A+
++  + + +
 +  + + +
 +  +   +
 ++++++++
