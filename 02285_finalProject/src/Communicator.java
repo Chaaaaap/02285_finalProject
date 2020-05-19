@@ -13,15 +13,22 @@ public class Communicator {
 
         // Find coordinates for desired state agent
         Agent desiredAgent = desiredState.agent.get(0);
-        //System.err.println("Desired Agent");
-        //System.err.println(desiredAgent.toString());
-        int desiredCol = desiredAgent.col;
-        int desiredRow = desiredAgent.row;
+        System.err.println("Desired Agent");
+        System.err.println(desiredAgent.toString());
+        int desiredCol = desiredAgent.col; // 8
+        int desiredRow = desiredAgent.row; // 1
     
+
+
         // Find the agent blocking those coordinates on the conflicting state
+        // Check whether the blockage is from another agent or another box
+        // Below line only takes agents into consideration
         Agent conflictingAgent = conflictingState.agent.stream().filter(a->a.col == desiredCol && a.row == desiredRow).findFirst().orElse(null);
+
+        
         System.err.println("Conflicting Agent");
         System.err.println(conflictingAgent.toString());
+        System.err.println(conflictingAgent.col + " " + conflictingAgent.row);
         int conflictingCol = conflictingAgent.col;
         int conflictingRow = conflictingAgent.row;
 
