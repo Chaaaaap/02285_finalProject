@@ -125,12 +125,14 @@ public class App {
             }
 
             if (strategy.frontierIsEmpty()) {
+                System.err.println("strategy.frontierIsEmpty()");
                 return null;
             }
 
             State leafState = strategy.getAndRemoveLeaf();
 
             if (leafState.isGoalState()) {
+                System.err.println("leafState.isGoalState(), iteration:" + iterations);
                 return leafState.extractPlan();
             }
 
@@ -151,33 +153,35 @@ public class App {
 
         int counter = 0;
 
-        while(!tempState.isGoalState()){
+        while(!tempState.isGoalState()){ 
             ArrayList<State> initialStates = new ArrayList<>();
             System.err.println("Tried to find goal: " + counter + " times");
-            System.err.println("HOW MANY AGENTS? " + tempState.agent.size());        
+            
+            //System.err.println("Printing all THE DAMN STATES!!");
             for (Agent agent : tempState.agent) {
                 initialStates.add(tempState.findInitial(agent));
             }
+            //for (int i = 0 ; i < initialStates.size() ; i++){
+            //    System.err.println("State #" + i);
+            //    System.err.println(initialStates.get(i).toString());
+            //}
     
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
      
             for (State state : initialStates) {
                 strategy = new Strategy.StrategyBFS();
                 allPlans.add(Search(strategy, state));
-                
             } 
+
     
-            Merger merger = new Merger(initialState);
+            Merger merger = new Merger(tempState);
             tempState = merger.SuperMerger(allPlans);  
             counter++;
-            return null;
-                                    
+            //return null;                        
         }
 
         return null;
-
-        
-        
+      
     }
 
     public static void main(String[] args) throws Exception {

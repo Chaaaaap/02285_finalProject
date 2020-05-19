@@ -66,7 +66,8 @@ public class Merger {
                 
                 for (int i = 0; i < states.size(); i++) {
                     if(indices[i] < states.get(i).size()){
-                        preState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]));                        
+                        preState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), states.get(i).get(indices[i + 1]));
+                        return preState;                        
                     }
                     
                 }

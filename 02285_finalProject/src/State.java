@@ -101,6 +101,7 @@ public class State {
                 }
             }
         }
+
         return !State.walls[row][col] && this.boxes[row][col] == null;
     }
 
@@ -135,7 +136,8 @@ public class State {
         } catch (Exception e) {
             // TODO: handle exception
         }
-
+        copy.box = this.box;
+        
         return copy;
     }
 
@@ -201,14 +203,14 @@ public class State {
         State newState = s1.ChildState();
         for (int i = 0; i < s1.agent.size(); i++) {
             for (int j = 0; j < s2.agent.size(); j++) {     
-                if(s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row){
+                if(s1.agent.get(i).col == s2.agent.get(j).col && s1.agent.get(i).row == s2.agent.get(j).row){ // There is an agent in the way where i want to move
                     if(s1.agent.get(i).name != s2.agent.get(j).name){
                         return null;
                     }
                 }
 
                 if(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col] != null && 
-                   !(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col].color.equals(s2.agent.get(j).color))){
+                   !(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col].color.equals(s2.agent.get(j).color))){ // If there is an agent where I want to move 
                     return null;
                 }
 
@@ -218,7 +220,6 @@ public class State {
                 else{
                     newState.agent.set(i, s1.agent.get(i));
                 }
-               
             }
         }
 
@@ -231,7 +232,8 @@ public class State {
                         return null;
                     }
 
-                    if(s2.boxes[i][j] != null && !s1.cellIsFree(i, j, s2.agent.get(0))){
+                    if(s2.boxes[i][j] != null && !(s2.boxes[i][j].equals(s1.boxes[i][j])) && !s1.cellIsFree(i, j, s2.agent.get(0))){
+
                         return null;
                     }
 
@@ -408,10 +410,7 @@ public class State {
                     Box tempBox = box.stream().filter(b->b.name == this.goals[c][d]).findFirst().orElse(null);
                     if(tempBox != null && tempBox.color.equals(iniAgent.color)){
                         ini.goals[row][col] = this.goals[row][col];
-                    }
-                    else{
-                        
-                    }                    
+                    }                  
                 }
                 if(this.boxes[row][col] != null){
                     if(this.boxes[row][col].color.equals(iniAgent.color)){
