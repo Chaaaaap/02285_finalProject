@@ -49,7 +49,10 @@ public class Merger {
         while(true){
             ArrayList<State> oneStepStates = new ArrayList<>();
             for (int i = 0; i < states.size(); i++) {
-                if(indices[i] < states.get(i).size()){
+                if(states.get(i) == null){
+                    oneStepStates.add(null);
+                }
+                else if(indices[i] < states.get(i).size()){
                     oneStepStates.add(states.get(i).get(indices[i]));
                 }
                 else{
@@ -62,9 +65,11 @@ public class Merger {
                 return preState;
             }
 
-            if(temp.stream().filter(c->c.actionType == Command.Type.NoOp).count() == temp.size()){
-                
+            if(temp.stream().filter(c->c.actionType == Command.Type.NoOp).count() == temp.size()){                
                 for (int i = 0; i < states.size(); i++) {
+                    if(states.get(i) == null){
+                        continue;
+                    }
                     if(indices[i] < states.get(i).size()){
                         preState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), states.get(i).get(indices[i + 1]));
                         return preState;                        

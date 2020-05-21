@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+
 //Read level from server
 //Start search
 
@@ -57,33 +58,38 @@ public class App {
                 case "#initial":
                     int row = 0;
                     line = serverMessages.readLine();
-                    initialState.MAX_COL = 0;
+                    State.MAX_COL = 0;
                     do {
                         for (int col = 0; col < line.length(); col++) {
+                            
                             char chr = line.charAt(col);
 
                             if (chr == '+') { // Wall.
-                                this.initialState.walls[row][col] = true;
+                                State.walls[row][col] = true;
                             } else if ('0' <= chr && chr <= '9') { // Agent.
                                 initialState.updateAgent(chr, row, col);
                             } else if ('A' <= chr && chr <= 'Z') { // Box.
+                                State.Box box = initialState.box.stream().filter(b-> b.name == chr).findFirst().orElse(null);
+                                Agent agent = initialState.agent.stream().filter(a-> a.color.equals(box.color)).findFirst().orElse(null);
+                                if(agent == null){
+                                    State.walls[row][col] = true;
+                                }
                                 this.initialState.updateBox(chr, row, col);
                             } else if (chr == ' ') {
                                 // Free space.
                             } else {
                                 System.err.println(line);
-
                                 System.err.println("Error, read invalid level character: " + (int) chr);
                                 System.exit(1);
                             }
                         }
                         row++;
-                        if (initialState.MAX_COL < line.length()) {
-                            initialState.MAX_COL = line.length();
+                        if (State.MAX_COL < line.length()) {
+                            State.MAX_COL = line.length();
                         }
                         line = serverMessages.readLine();
                     } while (!line.startsWith("#"));
-                    initialState.MAX_ROW = row;
+                    State.MAX_ROW = row;
                     break;
                 case "#goal":
                     line = serverMessages.readLine();
@@ -114,25 +120,28 @@ public class App {
         if(initialS == null){
             initialS = initialState;
         }
+
         //System.err.format("Search starting with strategy %s.\n", strategy.toString());
         strategy.addToFrontier(initialS);
+      
 
         int iterations = 0;
         while (true) {
-            if (iterations == 1000) {
+            if (iterations == 100000) {
                 System.err.println(strategy.searchStatus());
                 iterations = 0;
             }
 
             if (strategy.frontierIsEmpty()) {
-                System.err.println("strategy.frontierIsEmpty()");
+                System.err.println("Plan not found for: " + initialS.agent.get(0).name);
                 return null;
             }
 
             State leafState = strategy.getAndRemoveLeaf();
 
+                       
             if (leafState.isGoalState()) {
-                System.err.println("leafState.isGoalState(), iteration:" + iterations);
+                System.err.println("Found plan for: " + initialS.agent.get(0).name);
                 return leafState.extractPlan();
             }
 
@@ -156,15 +165,11 @@ public class App {
         while(!tempState.isGoalState()){ 
             ArrayList<State> initialStates = new ArrayList<>();
             System.err.println("Tried to find goal: " + counter + " times");
-            
-            //System.err.println("Printing all THE DAMN STATES!!");
+
             for (Agent agent : tempState.agent) {
                 initialStates.add(tempState.findInitial(agent));
             }
-            //for (int i = 0 ; i < initialStates.size() ; i++){
-            //    System.err.println("State #" + i);
-            //    System.err.println(initialStates.get(i).toString());
-            //}
+
     
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
      
@@ -172,12 +177,10 @@ public class App {
                 strategy = new Strategy.StrategyBFS();
                 allPlans.add(Search(strategy, state));
             } 
-
     
             Merger merger = new Merger(tempState);
             tempState = merger.SuperMerger(allPlans);  
-            counter++;
-            //return null;                        
+            counter++;                       
         }
 
         return null;
@@ -197,7 +200,7 @@ public class App {
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {
                 case "-bfs":
-                    strategy = new Strategy.StrategyBFS();
+                    strategy = new Strategy.StrategyGREEDY(new Heuristic());
                     break;
                 case "-dfs":
                     strategy = new Strategy.StrategyDFS();

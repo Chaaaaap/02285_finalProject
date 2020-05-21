@@ -1,5 +1,5 @@
 
-public class Agent implements Cloneable{
+public class Agent implements Cloneable, Comparable{
     public String color;
     public char name;
     public int row;
@@ -39,5 +39,15 @@ public class Agent implements Cloneable{
         // }
 
         return "Agent Color: " + color + ", name: " + name + ", row: " + row + ", col: " + col + "\n" + s.toString();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        char c = ((Agent) o).name;
+        boolean bigger = this.name > c;
+        if(bigger){
+            return 1;
+        }
+        return -1;
     }
 }

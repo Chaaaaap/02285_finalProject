@@ -93,7 +93,7 @@ public class State {
         return this.parent == null;
     }
 
-    private boolean cellIsFree(int row, int col, Agent ag) {
+    public boolean cellIsFree(int row, int col, Agent ag) {
         if(ag != null){
             for (Agent a : agent) {
                 if(a.row == row && a.col == col && !a.color.equals(ag.color)){
@@ -120,10 +120,9 @@ public class State {
         return plan;
     }
 
-    private State ChildState() {
+    public State ChildState() {
         State copy = new State(this);
         for (int row = 0; row < MAX_ROW; row++) {
-            System.arraycopy(this.walls[row], 0, copy.walls[row], 0, MAX_COL);
             System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, MAX_COL);
             System.arraycopy(this.goals[row], 0, copy.goals[row], 0, MAX_COL);
         }
@@ -134,7 +133,6 @@ public class State {
                 clone.add((Agent) item.clone());
             copy.agent = clone;
         } catch (Exception e) {
-            // TODO: handle exception
         }
         copy.box = this.box;
         
@@ -143,12 +141,15 @@ public class State {
 
     public ArrayList<State> getExpandedStates() {
         ArrayList<State> expandedStates = new ArrayList<>();
-            ArrayList<State> states = new ArrayList<>();
             for (Command c : Command.EVERY) {
 
                 // Determine applicability of action
                 int newAgentRow = this.agent.get(0).row + Command.dirToRowChange(c.dir1);
                 int newAgentCol = this.agent.get(0).col + Command.dirToColChange(c.dir1);
+
+                if(newAgentCol < 0 || newAgentRow < 0){
+                    continue;
+                }
 
                 if (c.actionType == Command.Type.Move) {
                     // Check if there's a wall or box on the cell to which the agent is moving
@@ -266,16 +267,12 @@ public class State {
 
     @Override
     public String toString() {
+
         StringBuilder s = new StringBuilder();
-        s.append("Domain: " + this.domain + "\n");
-        s.append("LevelName: " + this.levelName + "\n");
-
-
+        s.append("Domain: " + State.domain + "\n");
+        s.append("LevelName: " + State.levelName + "\n");
 
         for (int row = 0; row < MAX_ROW; row++) {
-            if (!this.walls[row][0]) {
-                break;
-            }
             for (int col = 0; col < MAX_COL; col++) {
                 int coll = col; // Resloving: Local Variable Defined in an Enclosing Scope Must be Final or Effectively Final Error 
                 int roww = row; // For:  } else if (agent.stream().filter(a->a.col == coll && a.row == roww).count() > 0){
@@ -283,14 +280,8 @@ public class State {
                     s.append(this.boxes[row][col].name);
                 } else if (this.goals[row][col] > 0) {
                     s.append(Character.toLowerCase(this.goals[row][col]));
-                } else if (this.walls[row][col]) {
+                } else if (State.walls[row][col]) {
                     s.append("+");
-                //} else if (agent.size() > 0){
-                //    for (int i = 0 ; i < agent.size() ; i ++){
-                //        if (agent.get(i).row == row && agent.get(i).col == col){
-                //            s.append(agent.get(i).name);
-                //        }
-                //    }
                 } else if (agent.stream().filter(a->a.col == coll && a.row == roww).count() > 0){
                     Agent ag = agent.stream().filter(a->a.col == coll && a.row == roww).findFirst().orElse(null);
                     if (ag != null){
@@ -298,12 +289,7 @@ public class State {
                     } else {
                         System.err.println("Agent is null in State.toString()");
                     }
-
-                
-                //} else if (agent.get(0).row == row && agent.get(0).col == col) {
-                //    s.append(agent.get(0).name);
-                } 
-                else {
+                }else {
                     s.append(" ");
                 }
             }
@@ -363,6 +349,10 @@ public class State {
         Box[][] newBoxes = new Box[rows][cols];
         char[][] newGoals = new char[rows][cols];
 
+        
+
+        Collections.sort(agent);
+
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 if(this.goals[row][col] > 0){
@@ -379,13 +369,13 @@ public class State {
                         }
                     }
                 }
-                newWalls[row][col] = this.walls[row][col];
+                newWalls[row][col] = State.walls[row][col];
                 newBoxes[row][col] = this.boxes[row][col];
                 newGoals[row][col] = this.goals[row][col];
             }
         }
 
-        this.walls = newWalls;
+        State.walls = newWalls;
         this.boxes = newBoxes;
         this.goals = newGoals;
     }
@@ -395,9 +385,6 @@ public class State {
 
         int rows = MAX_ROW;
         int cols = MAX_COL;
-
-        Box[][] newBoxes = new Box[rows][cols];
-        char[][] newGoals = new char[rows][cols];
 
         ini.agent = new ArrayList<>();
         ini.agent.add(iniAgent);
@@ -409,8 +396,24 @@ public class State {
                     int d = col;
                     Box tempBox = box.stream().filter(b->b.name == this.goals[c][d]).findFirst().orElse(null);
                     if(tempBox != null && tempBox.color.equals(iniAgent.color)){
-                        ini.goals[row][col] = this.goals[row][col];
-                    }                  
+                        // se om der er en vej fra agent til goal
+                        // tilføj kun goal såfremt der er det
+                        Strategy s = new Strategy.StrategySimpleBFS();
+                        s.addToFrontier(ini);
+
+                        State temp = null;
+
+                        while(!s.frontierIsEmpty()){
+                            temp = s.getAndRemoveLeaf();
+                            if(temp.agent.get(0).col == col && temp.agent.get(0).row == row){
+                                ini.goals[row][col] = this.goals[row][col];
+                                break;
+                            }
+                        }
+
+                    }    
+                    
+                    
                 }
                 if(this.boxes[row][col] != null){
                     if(this.boxes[row][col].color.equals(iniAgent.color)){
@@ -426,7 +429,7 @@ public class State {
     public boolean isCellEmpty(int row, int col){
         if (this.boxes[row][col] != null){
             return false;
-        } else if (this.walls[row][col]) {
+        } else if (State.walls[row][col]) {
             return false;
         } else if (agent.stream().filter(a->a.col == col && a.row == row).count() > 0){
             return false;

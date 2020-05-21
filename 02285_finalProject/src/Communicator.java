@@ -7,10 +7,10 @@ public class Communicator {
     public State pleaseMove(State conflictingState, State desiredState, State nextState){
 
         System.err.println("COMMUNICATOR");
-        System.err.println("conflictingState");
-        System.err.println(conflictingState.toString());
-        System.err.println("desiredState");
-        System.err.println(desiredState.toString());
+        // System.err.println("conflictingState");
+        // System.err.println(conflictingState.toString());
+        // System.err.println("desiredState");
+        // System.err.println(desiredState.toString());
 
         // Find coordinates for desired state agent
         Agent desiredAgent = desiredState.agent.get(0);
@@ -31,17 +31,13 @@ public class Communicator {
         } else if (conflictingBox.color.equals(desiredAgent.color)) { // It is my own box god damit, imma push it
             System.err.println("Lemme fix that box for ya");
             if (desiredState.action.dir2 == Command.Dir.E){
-                desiredRow = desiredRow;
                 desiredCol = desiredCol + 1;
             } else if (desiredState.action.dir2 == Command.Dir.W){
-                desiredRow = desiredRow;
                 desiredCol = desiredCol - 1; 
             } else if (desiredState.action.dir2 == Command.Dir.N){
                 desiredRow = desiredRow - 1;
-                desiredCol = desiredCol; 
             } else {
                 desiredRow = desiredRow + 1;
-                desiredCol = desiredCol; 
             }
             int desiredColTempBox = desiredCol;
             int desiredRowTempBox = desiredRow;
@@ -159,8 +155,8 @@ public class Communicator {
         resolvedState = conflictingState;
 
         // Return state
-        System.err.println("Resolved state");
-        System.err.println(resolvedState);
+        // System.err.println("Resolved state");
+        // System.err.println(resolvedState);
         return resolvedState;
     }
 

@@ -6,6 +6,7 @@ public class Heuristic {
 
     //Distance to goal - manhatten distance
     public int h(State n) {
+
         int manhattanDistance = 0;
 
         ArrayList<Agent> agents = n.agent;
@@ -20,14 +21,14 @@ public class Heuristic {
             
             for (int row = 0 ; row < boxes.length ; row++){
                 for (int col = 0 ; col < boxes[row].length ; col++){
-                    if (boxes[row][col] != null){
-                        
-                        //if (!(boxes[row][col].name == goals[row][col])){
-                            String color = boxes[row][col].color;
-                            if (color.equals(agents.get(a).color)){
+                    if (boxes[row][col] != null && goals[row][col] == 0){
+                                                //if (!(boxes[row][col].name == goals[row][col])){
+                            // String color = boxes[row][col].color;
+                            // if (color.equals(agents.get(a).color)){
                                 Pair pair = new Pair(row, col);
                                 boxCords.add(pair);
-                            }
+
+                            // }
                         //}
                     }
                 }
@@ -35,12 +36,12 @@ public class Heuristic {
 
             // For each cords set add the distance from that set to the agnets coordinates
             Pair agentCords = new Pair(agents.get(a).row, agents.get(a).col);
-            
+          
+
             for (int i = 0 ; i < boxCords.size() ; i ++){
-                if (goals[boxCords.get(i).row][boxCords.get(i).col] == ' '){
-                    manhattanDistance =+ manhattanDistance(agentCords, boxCords.get(i));
-                }
+                manhattanDistance += manhattanDistance(agentCords, boxCords.get(i));
             }
+
         }
 
         // Distance for each box to its goal
@@ -95,6 +96,11 @@ public class Heuristic {
 
         public int row;
         public int col;
+
+        @Override
+        public String toString(){
+            return "row: " + row + " col: " + col;
+        }
 
         public Pair (int row, int col){
             //System.err.println("In Heuristic.Pair 1");
