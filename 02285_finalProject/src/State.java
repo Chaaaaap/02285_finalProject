@@ -398,17 +398,13 @@ public class State {
                     if(tempBox != null && tempBox.color.equals(iniAgent.color)){
                         // se om der er en vej fra agent til goal
                         // tilføj kun goal såfremt der er det
-                        Strategy s = new Strategy.StrategySimpleBFS();
-                        s.addToFrontier(ini);
+                        
+                        FindGoal fg = new FindGoal();
 
-                        State temp = null;
+                        boolean goal = fg.isGoalPossible(iniAgent.row, iniAgent.col, row, col);
 
-                        while(!s.frontierIsEmpty()){
-                            temp = s.getAndRemoveLeaf();
-                            if(temp.agent.get(0).col == col && temp.agent.get(0).row == row){
-                                ini.goals[row][col] = this.goals[row][col];
-                                break;
-                            }
+                        if(goal){
+                            ini.goals[row][col] = this.goals[row][col];
                         }
 
                     }    

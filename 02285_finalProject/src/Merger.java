@@ -39,8 +39,7 @@ public class Merger {
         this.preState = tempState;
         String listString = actions.stream().map(Object::toString)
                         .collect(Collectors.joining(";"));
-        System.out.println(listString);
-
+        System.out.println(listString);        
         return actions;
     }
 
@@ -70,6 +69,7 @@ public class Merger {
                     if(states.get(i) == null){
                         continue;
                     }
+                    System.err.println(states.get(i).size());
                     if(indices[i] < states.get(i).size()){
                         preState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), states.get(i).get(indices[i + 1]));
                         return preState;                        

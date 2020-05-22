@@ -62,6 +62,7 @@ public abstract class Strategy {
         @Override
         public State getAndRemoveLeaf() {
             State n = frontier.pollFirst();
+            
             //frontierSet.remove(n);
             return n;
         }
@@ -96,7 +97,7 @@ public abstract class Strategy {
      // BFS
      public static class StrategySimpleBFS extends Strategy {
         private ArrayDeque<State> frontier;
-        private HashSet<State> frontierSet;
+        public HashSet<State> frontierSet;
         Command[] moves = new Command[]{new Command(Command.Dir.N), new Command(Command.Dir.W), new Command(Command.Dir.S), new Command(Command.Dir.E)};
 
         public StrategySimpleBFS() {
@@ -114,7 +115,7 @@ public abstract class Strategy {
                 int newAgentRow = n.agent.get(0).row + Command.dirToRowChange(c.dir1);
                 int newAgentCol = n.agent.get(0).col + Command.dirToColChange(c.dir1);
 
-                State t = n.ChildState();
+                State t = n.ChildState();               
 
                 if (!State.walls[newAgentRow][newAgentCol]) {
                     t.agent.get(0).row = newAgentRow;
@@ -124,7 +125,7 @@ public abstract class Strategy {
                         frontierSet.add(t);
                     }
                 }
-            }
+            }   
             return n;
         }
 

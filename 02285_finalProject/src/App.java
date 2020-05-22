@@ -141,7 +141,6 @@ public class App {
 
                        
             if (leafState.isGoalState()) {
-                System.err.println("Found plan for: " + initialS.agent.get(0).name);
                 return leafState.extractPlan();
             }
 
@@ -174,7 +173,7 @@ public class App {
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
      
             for (State state : initialStates) {
-                strategy = new Strategy.StrategyBFS();
+                strategy = new Strategy.StrategyGREEDY(new Heuristic());
                 allPlans.add(Search(strategy, state));
             } 
     
