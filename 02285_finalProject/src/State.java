@@ -239,14 +239,22 @@ public class State {
                     }
 
                     if (newState.boxes[i][j] == null && s2.boxes[i][j] != null) {
-                        newState.boxes[i][j] = s2.boxes[i][j];
-                        if(s2.action.actionType == Command.Type.Pull){    
-                            newState.boxes[(i+(Command.dirToRowChange(s2.action.dir2)))]
+                        if(s2.action.actionType == Command.Type.Pull){   
+                            if(newState.boxes[(i+(Command.dirToRowChange(s2.action.dir2)))]
+                            [(j+(Command.dirToColChange(s2.action.dir2)))] != null){
+                                newState.boxes[(i+(Command.dirToRowChange(s2.action.dir2)))]
                                           [(j+(Command.dirToColChange(s2.action.dir2)))]= null; 
+                                newState.boxes[i][j] = s2.boxes[i][j];
+                            } 
+                            
                         }
                         else{
-                            newState.boxes[(i+(-1*Command.dirToRowChange(s2.action.dir2)))]
-                                          [(j+(-1*Command.dirToColChange(s2.action.dir2)))]= null; 
+                            if(newState.boxes[(i+(-1*Command.dirToRowChange(s2.action.dir2)))]
+                            [(j+(-1*Command.dirToColChange(s2.action.dir2)))] != null){
+                                newState.boxes[i][j] = s2.boxes[i][j];
+                                newState.boxes[(i+(-1*Command.dirToRowChange(s2.action.dir2)))]
+                                [(j+(-1*Command.dirToColChange(s2.action.dir2)))]= null; 
+                            }
                         } 
                     } 
                 }
@@ -352,6 +360,14 @@ public class State {
         
 
         Collections.sort(agent);
+        
+        ArrayList<Agent> remove = new ArrayList<>();
+        for (Agent a : agent) {
+            if(a.row == -1){
+                remove.add(a);
+            }
+        }
+        agent.removeAll(remove);
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {

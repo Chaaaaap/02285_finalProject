@@ -17,6 +17,9 @@ public class FindGoal {
         while(!frontier.isEmpty()){
             Coordinates tempC = frontier.pop();
             for (Command moveCommand : moves) {
+                if(tempC.row+Command.dirToRowChange(moveCommand.dir1) < 0 || tempC.col+Command.dirToColChange(moveCommand.dir1) < 0){
+                    continue;
+                }
                 if(!State.walls[tempC.row+Command.dirToRowChange(moveCommand.dir1)][tempC.col+Command.dirToColChange(moveCommand.dir1)]){  
                     Coordinates temp = new Coordinates(tempC.row+Command.dirToRowChange(moveCommand.dir1), tempC.col+Command.dirToColChange(moveCommand.dir1));
                     

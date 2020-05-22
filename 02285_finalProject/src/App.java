@@ -165,21 +165,26 @@ public class App {
             ArrayList<State> initialStates = new ArrayList<>();
             System.err.println("Tried to find goal: " + counter + " times");
 
+        
             for (Agent agent : tempState.agent) {
                 initialStates.add(tempState.findInitial(agent));
             }
 
+            
     
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
      
             for (State state : initialStates) {
-                strategy = new Strategy.StrategyGREEDY(new Heuristic());
+                strategy = new Strategy.StrategyBFS();
+                //strategy = new Strategy.StrategyGREEDY(new Heuristic());
                 allPlans.add(Search(strategy, state));
+                // System.err.println(state);
             } 
+
     
             Merger merger = new Merger(tempState);
-            tempState = merger.SuperMerger(allPlans);  
-            counter++;                       
+            tempState = merger.SuperMerger(allPlans);
+            counter++;                      
         }
 
         return null;

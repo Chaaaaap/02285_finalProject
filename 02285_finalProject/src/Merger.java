@@ -21,15 +21,15 @@ public class Merger {
                     actions.add(new Command());
                 }
                 else{
-                    tmp = tempState.combineTwoStates(tempState, states.get(i));   
-                    if(tmp == null){
-                        actions.add(new Command());
-                    }
-                    else{
-                        tempState = tmp;
+                    tmp = tempState.combineTwoStates(tempState, states.get(i));
+                    if(tmp != null){
                         indices[i]++;
                         actions.add(states.get(i).action);
+                        tempState = tmp;
                     }
+                    else{
+                        actions.add(new Command());
+                    }    
                 }
             }
             else{
@@ -39,7 +39,7 @@ public class Merger {
         this.preState = tempState;
         String listString = actions.stream().map(Object::toString)
                         .collect(Collectors.joining(";"));
-        System.out.println(listString);        
+        System.out.println(listString);
         return actions;
     }
 
@@ -69,14 +69,17 @@ public class Merger {
                     if(states.get(i) == null){
                         continue;
                     }
-                    System.err.println(states.get(i).size());
                     if(indices[i] < states.get(i).size()){
-                        preState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), states.get(i).get(indices[i + 1]));
-                        return preState;                        
+                        State tempState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), states.get(i).get(indices[i + 1]));
+                        if(tempState != null){
+                            preState = tempState;
+                            return tempState;
+                        }                     
                     }
                     
                 }
-                return preState;
+                // return preState;
+                return null;
             }
         }
         //Merge hele planer for alle agenter

@@ -12,6 +12,8 @@ public class Agent implements Cloneable, Comparable{
     public Agent(String color, char name) {
         this.color = color;
         this.name = name;
+        this.row = -1;
+        this.col = -1;
     }
 
     @Override

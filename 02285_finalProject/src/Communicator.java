@@ -6,7 +6,7 @@ public class Communicator {
     //Thr return state should have been combined with the desired State                
     public State pleaseMove(State conflictingState, State desiredState, State nextState){
 
-        System.err.println("COMMUNICATOR");
+        // System.err.println("COMMUNICATOR");
         // System.err.println("conflictingState");
         // System.err.println(conflictingState.toString());
         // System.err.println("desiredState");
@@ -29,7 +29,6 @@ public class Communicator {
         if (conflictingAgent != null){
             return fixForAgent(conflictingState, desiredState, conflictingAgent, desiredAgent, nextState, false);
         } else if (conflictingBox.color.equals(desiredAgent.color)) { // It is my own box god damit, imma push it
-            System.err.println("Lemme fix that box for ya");
             if (desiredState.action.dir2 == Command.Dir.E){
                 desiredCol = desiredCol + 1;
             } else if (desiredState.action.dir2 == Command.Dir.W){
@@ -43,16 +42,105 @@ public class Communicator {
             int desiredRowTempBox = desiredRow;
             // Find the agent blocking those coordinates on the conflicting state
             conflictingAgent = conflictingState.agent.stream().filter(a->a.col == desiredColTempBox && a.row == desiredRowTempBox).findFirst().orElse(null);
+            if(conflictingAgent != null){
+                return fixForAgent(conflictingState, desiredState, conflictingAgent, desiredAgent, nextState, true);
+            }
+            else{
+                return makeWayForMyBox(conflictingState, desiredState, desiredRow, desiredCol);
+            }
             
-            return fixForAgent(conflictingState, desiredState, conflictingAgent, desiredAgent, nextState, true);
-
         } else {
-            return null;
+            return makeWayForMyBox(conflictingState, desiredState, desiredRow, desiredCol);
         }   
     }
 
-    private State makeWayForMyBox (State conflictingState, State desiredState, Agent conflictingAgent){
-        return null;
+    private State makeWayForMyBox (State conflictingState, State desiredState, int row, int col){
+        Agent[] agents = conflictingState.agent.stream().filter(a->a.color.equals(conflictingState.boxes[row][col].color)).toArray(Agent[]::new);
+        Agent agent = null;
+        if(agents.length == 0){
+            return null;
+        }
+
+        for (Agent ag : agents) {
+            int distance = Math.abs(ag.col - col) + Math.abs(ag.row - row);
+            if (distance == 1) {
+                agent = ag;
+            }
+        }
+
+        if(agent == null){
+            return null;
+        }
+      
+        //Find retning aften kan gå
+        Command.Dir dir = null;
+        Command.Dir dir2 = null;
+        if(conflictingState.isCellEmpty(agent.row, agent.col + 1)){
+            conflictingState.updateAgent(agent.name, agent.row, agent.col + 1);
+            dir = Command.Dir.E;
+        }
+        else if(conflictingState.isCellEmpty(agent.row, agent.col - 1)){
+            conflictingState.updateAgent(agent.name, agent.row, agent.col - 1);
+            dir = Command.Dir.W;
+        }
+        else if(conflictingState.isCellEmpty(agent.row + 1, agent.col)){
+            conflictingState.updateAgent(agent.name, agent.row + 1, agent.col);
+            dir = Command.Dir.S;
+        }
+        else if(conflictingState.isCellEmpty(agent.row - 1, agent.col)){
+            conflictingState.updateAgent(agent.name, agent.row - 1, agent.col);
+            dir = Command.Dir.N;
+        }
+        else{
+            return null;
+        }
+        //pull box hen hvor agent stod før -> finde den retning
+        if(agent.row - row == 2){
+            conflictingState.boxes[row+1][col] = conflictingState.boxes[row][col];
+            conflictingState.boxes[row][col] = null;
+            dir2 = Command.Dir.N;
+        }
+        else if(agent.row - row == -2){
+            conflictingState.boxes[row-1][col] = conflictingState.boxes[row][col];
+            conflictingState.boxes[row][col] = null;
+            dir2 = Command.Dir.S;
+        }
+        else if(agent.col - col == 2){
+            conflictingState.boxes[row][col+1] = conflictingState.boxes[row][col];
+            conflictingState.boxes[row][col] = null;
+            dir2 = Command.Dir.W;
+        }
+        else{
+            conflictingState.boxes[row][col-1] = conflictingState.boxes[row][col];
+            conflictingState.boxes[row][col] = null;
+            dir2 = Command.Dir.E;
+        }
+
+        String s = "";
+
+        for (int i = 0 ; i < conflictingState.agent.size() ; i++){
+            if (conflictingState.agent.get(i).name == agent.name){  
+                s = s + (new Command(Command.Type.Pull, dir, dir2).toString()) + ";";
+            } else {
+                s = s + "NoOp;";
+            }
+        }
+        // remove last char from s
+        s = s.substring(0, s.length() - 1);
+        System.out.println(s);
+
+        s = "";
+        for (int i = 0 ; i < conflictingState.agent.size() ; i++){
+            if (conflictingState.agent.get(i).name == desiredState.agent.get(0).name){  
+                s = s + desiredState.action.toString() + ";";
+            } else {
+                s = s + "NoOp;";
+            }
+        }
+        // remove last char from s
+        s = s.substring(0, s.length() - 1);
+        System.out.println(s);
+        return conflictingState.combineTwoStates(conflictingState, desiredState);
     }
 
     private State fixForAgent(State conflictingState, State desiredState, Agent conflictingAgent, Agent desiredAgent, State nextState, Boolean fixForBox){
@@ -69,7 +157,6 @@ public class Communicator {
         if (conflictingState.isCellEmpty(conflictingRow, conflictingCol + 1)){ // Move Right
             freeCellRow = conflictingRow;
             freeCellCol = conflictingCol + 1;
-            //moveCommandConflict = new Command(Command.Dir.E);
             backupCommand = new Command(Command.Dir.E);
             if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
                 moveCommandConflict = backupCommand;
@@ -78,7 +165,6 @@ public class Communicator {
         } if (conflictingState.isCellEmpty(conflictingRow, conflictingCol - 1)){ // Move Left
             freeCellRow = conflictingRow;
             freeCellCol = conflictingCol - 1;
-            //moveCommandConflict = new Command(Command.Dir.W);
             backupCommand = new Command(Command.Dir.W);
             if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
                 moveCommandConflict = backupCommand;
@@ -87,7 +173,6 @@ public class Communicator {
         } if (conflictingState.isCellEmpty(conflictingRow + 1, conflictingCol)){ // Move Down
             freeCellRow = conflictingRow + 1;
             freeCellCol = conflictingCol;
-            //moveCommandConflict = new Command(Command.Dir.S);
             backupCommand = new Command(Command.Dir.S);
             if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
                 moveCommandConflict = backupCommand;
@@ -96,7 +181,6 @@ public class Communicator {
         } if (conflictingState.isCellEmpty(conflictingRow - 1, conflictingCol)){ // Move Up
             freeCellRow = conflictingRow - 1;
             freeCellCol = conflictingCol;
-            //moveCommandConflict = new Command(Command.Dir.N);
             backupCommand = new Command(Command.Dir.N);
             if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
                 moveCommandConflict = backupCommand;
@@ -137,8 +221,9 @@ public class Communicator {
         System.out.println(s);
 
         // Move the desired agent
-        conflictingState.updateAgent(desiredAgent.name, desiredAgent.row, desiredAgent.col);
-
+        // conflictingState.updateAgent(desiredAgent.name, desiredAgent.row, desiredAgent.col);
+        conflictingState = conflictingState.combineTwoStates(conflictingState, desiredState);
+        System.err.println(conflictingState);
         s = "";
         for (int i = 0 ; i < conflictingState.agent.size() ; i++){
             if (conflictingState.agent.get(i).name == desiredAgent.name){  
