@@ -100,7 +100,6 @@ public class State {
             Pair coordinates = new Pair(agent.row, agent.col);
             if (agent.goal == null) continue;
             if (!agent.goal.equals(coordinates)) {
-                System.err.println(agent.name + "is not in goal " + agent.goal + " but is here: " + coordinates);
                 return false;
             }
         }
