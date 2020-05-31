@@ -91,7 +91,4 @@ public class Heuristic {
     public int manhattanDistance(Pair a, Pair b){
         return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
     }
-
-    
-    
 }

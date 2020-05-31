@@ -99,6 +99,9 @@ public class App {
                             char chr = line.charAt(col);
                             if ('A' <= chr && chr <= 'Z') { // Goal.
                                 this.initialState.goals[row][col] = chr;
+                            } else if ('0' <= chr && chr <= '9') { // Agent goal
+                                Agent agent = this.initialState.agent.stream().filter(a -> a.name == chr).findFirst().orElse(null);
+                                agent.setGoal(row, col);
                             }
                         }
                         row++;
@@ -140,12 +143,12 @@ public class App {
             State leafState = strategy.getAndRemoveLeaf();
 
                        
-            if (leafState.isGoalState()) {
+            if (leafState.isBoxGoalState()) {
                 return leafState.extractPlan();
             }
 
             strategy.addToExplored(leafState);
-            for (State n : leafState.getExpandedStates()) { // The list of expanded states is shuffled randomly; see
+            for (State n : leafState.getExpandedStates(false)) { // The list of expanded states is shuffled randomly; see
                 if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
                     strategy.addToFrontier(n);
                 }
@@ -160,7 +163,7 @@ public class App {
 
         int counter = 0;
 
-        while(!tempState.isGoalState()){ 
+        while(!tempState.isBoxGoalState()){ 
             ArrayList<State> initialStates = new ArrayList<>();
             System.err.println("Tried to find goal: " + counter + " times");
 
@@ -183,9 +186,62 @@ public class App {
             tempState = merger.SuperMerger(allPlans);
             counter++;                      
         }
+        
+        // All boxes are placed
+        // now plan for agent goals
+        while(!tempState.isAgentGoalState()) {
+            
+            // make all boxes into walls
+            tempState.convertBoxesToWalls();
+            // split agent goals to different states
+            ArrayList<State> listOfStates = new ArrayList<>();
+            for (Agent agent : tempState.agent) {
+                State s = new State();
+                s.agent.add(agent);
+                listOfStates.add(s);
+            }
+            // find plan for each goal using new search
+            ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
+            for (State  s : listOfStates) {
+                allPlans.add(findAgentGoals(s));
+            }
+            // merge plans
+            Merger merger = new Merger(tempState);
+            tempState = merger.SuperMerger(allPlans);
 
+            // return null;
+        }
         return null;
       
+    }
+
+    public ArrayList<State> findAgentGoals(State state) {
+        Strategy strategy = new Strategy.StrategyAStar(new AgentGoalHueristic());
+        strategy.addToFrontier(state);
+      
+
+        while (true) {
+            if (strategy.frontierIsEmpty()) {
+                System.err.println("Plan not found for: " + state.agent.get(0).name);
+                return null;
+            }
+
+            State leafState = strategy.getAndRemoveLeaf();
+
+                       
+            if (leafState.isAgentGoalState()) {
+                return leafState.extractPlan();
+            }
+
+            strategy.addToExplored(leafState);
+            for (State n : leafState.getExpandedStates(true)) { // The list of expanded states is shuffled randomly; see
+                if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
+                    strategy.addToFrontier(n);
+                }
+            }
+        }
+
+        // return null;
     }
 
     public static void main(String[] args) throws Exception {

@@ -76,7 +76,7 @@ public class State {
         }
     }
 
-    public boolean isGoalState() {
+    public boolean isBoxGoalState() {
         for (int row = 1; row < MAX_ROW - 1; row++) {
             for (int col = 1; col < MAX_COL - 1; col++) {
                 char g = goals[row][col];
@@ -95,6 +95,17 @@ public class State {
         return true;
     }
 
+    public boolean isAgentGoalState() {
+        for (Agent agent : this.agent) {
+            Pair coordinates = new Pair(agent.row, agent.col);
+            if (agent.goal == null) continue;
+            if (!agent.goal.equals(coordinates)) {
+                System.err.println(agent.name + "is not in goal " + agent.goal + " but is here: " + coordinates);
+                return false;
+            }
+        }
+        return true;
+    }
     public boolean isInitialState() {
         return this.parent == null;
     }
@@ -145,7 +156,7 @@ public class State {
         return copy;
     }
 
-    public ArrayList<State> getExpandedStates() {
+    public ArrayList<State> getExpandedStates(boolean onlyMove) {
         ArrayList<State> expandedStates = new ArrayList<>();
             for (Command c : Command.EVERY) {
 
@@ -167,7 +178,7 @@ public class State {
                         n.agent.get(0).col = newAgentCol;
                         expandedStates.add(n);
                     }
-                } else if (c.actionType == Command.Type.Push) {
+                } else if (c.actionType == Command.Type.Push && !onlyMove) {
                     // Make sure that there's actually a box to move
                     if (this.boxAt(newAgentRow, newAgentCol)) {
                         int newBoxRow = newAgentRow + Command.dirToRowChange(c.dir2);
@@ -183,7 +194,7 @@ public class State {
                             expandedStates.add(n);
                         }
                     }
-                } else if (c.actionType == Command.Type.Pull) {
+                } else if (c.actionType == Command.Type.Pull && !onlyMove) {
                     // Cell is free where agent is going
                     if (this.cellIsFree(newAgentRow, newAgentCol, null)) {
                         int boxRow = this.agent.get(0).row + Command.dirToRowChange(c.dir2);
@@ -455,5 +466,15 @@ public class State {
             return true;
         }
     }
+
+	public void convertBoxesToWalls() {
+        for (int i = 0; i < this.boxes.length; i++) {
+            for (int j = 0; j < this.boxes[i].length; j++) {
+                if (this.boxes[i][j] != null) {
+                    State.walls[i][j] = true;
+                }
+            }
+        }
+	}
 
 }

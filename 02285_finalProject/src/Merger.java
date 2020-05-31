@@ -60,7 +60,7 @@ public class Merger {
             }
             ArrayList<Command> temp = merge(preState, oneStepStates);
             
-            if(preState.isGoalState()){
+            if(preState.isBoxGoalState()){
                 return preState;
             }
 

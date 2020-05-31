@@ -18,4 +18,10 @@ public class Pair{
         //System.err.println("In Heuristic.Pair 3");
 
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        return (((Pair) o).row == this.row && ((Pair) o).col == this.col);
+    }
 }
