@@ -4,6 +4,7 @@ public class Agent implements Cloneable, Comparable{
     public char name;
     public int row;
     public int col;
+    public Pair goal;
 
     public boolean isDone = false;
 
@@ -51,5 +52,9 @@ public class Agent implements Cloneable, Comparable{
             return 1;
         }
         return -1;
+    }
+
+    public void setGoal(int x, int y) {
+        this.goal = new Pair(x, y);
     }
 }
