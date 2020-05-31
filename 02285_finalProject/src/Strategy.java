@@ -201,4 +201,73 @@ public abstract class Strategy {
             return "Greedy Search";
         }
     }
+
+    public static class StrategyAStar extends Strategy {
+        private ArrayList<State> frontier;
+        private HashSet<State> frontierSet;
+        Heuristic heuristic;
+
+        public StrategyAStar(Heuristic h) {
+            super();
+            frontier = new ArrayList<>();
+            frontierSet = new HashSet<>();
+            heuristic = h;
+        }
+
+        @Override
+        public State getAndRemoveLeaf() {
+            State n = frontier.get(0);
+            frontier.remove(0);
+
+            return n;
+        }
+
+        @Override
+        public void addToFrontier(State n) {
+
+            int h = heuristic.h(n);
+            int pos = 0;
+
+            boolean isNotLast = false;
+
+            n.h = h;
+            n.f = n.h + n.g;
+
+            for (int i = 0; i < frontier.size(); i++) {
+                
+                if (frontier.get(i).f >= n.f) {
+                    pos = i;
+                    isNotLast = true;
+                    break;
+                }
+            }
+            if (!isNotLast) {
+                frontier.add(n);
+            } else {
+                frontier.add(pos, n);
+            }
+
+            frontierSet.add(n);
+        }
+
+        @Override
+        public int countFrontier() {
+            return frontier.size();
+        }
+
+        @Override
+        public boolean frontierIsEmpty() {
+            return frontier.isEmpty();
+        }
+
+        @Override
+        public boolean inFrontier(State n) {
+            return frontierSet.contains(n);
+        }
+
+        @Override
+        public String toString() {
+            return "AStar Search";
+        }
+    }
 }

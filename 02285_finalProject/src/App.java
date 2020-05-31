@@ -146,7 +146,6 @@ public class App {
 
             strategy.addToExplored(leafState);
             for (State n : leafState.getExpandedStates()) { // The list of expanded states is shuffled randomly; see
-                                                            // State.java.
                 if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
                     strategy.addToFrontier(n);
                 }
@@ -175,12 +174,10 @@ public class App {
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
      
             for (State state : initialStates) {
-                strategy = new Strategy.StrategyBFS();
-                //strategy = new Strategy.StrategyGREEDY(new Heuristic());
+                strategy = new Strategy.StrategyAStar(new Heuristic());
                 allPlans.add(Search(strategy, state));
-                // System.err.println(state);
-            } 
-
+                
+            }
     
             Merger merger = new Merger(tempState);
             tempState = merger.SuperMerger(allPlans);
@@ -211,6 +208,9 @@ public class App {
                     break;
                 case "-greedy":
                     strategy = new Strategy.StrategyGREEDY(new Heuristic());
+                    break;
+                case "-astar":
+                    strategy = new Strategy.StrategyAStar(new Heuristic());
                     break;
                 default:
                     strategy = new Strategy.StrategyBFS();

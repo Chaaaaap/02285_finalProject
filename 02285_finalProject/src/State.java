@@ -15,6 +15,8 @@ public class State {
 
     public int _hash = 0;
     public int h;
+    public int g;
+    public int f;
 
     public static boolean isMultiLevel = true;
 
@@ -36,11 +38,15 @@ public class State {
     public Command action;
     public ArrayList<Command> commands;
 
+    // When creating a new state with the empty constructor we wish to initialize 
+    // g to 0 as this is exptected to be the root state
     public State() {
+        this.g = 0;
     }
 
     public State(State parent) {
         this.parent = parent;
+        this.g = parent.g + 1;
     }
 
     public void addBox(String color, char chr) {
