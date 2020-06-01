@@ -2,7 +2,6 @@ import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Stack;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public abstract class Strategy {
     private HashSet<State> explored;

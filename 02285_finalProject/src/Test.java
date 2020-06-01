@@ -1,6 +1,5 @@
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Test {
@@ -15,11 +14,11 @@ public class Test {
 
     public void testMerger(){
 
-        System.out.println("Running Merge test");
+        // System.out.println("Running Merge test");
 
-        Merger merger = new Merger(new State());
+        // Merger i = new Merger(new State());
         
-        State stateAll = initializeState("MATest_merge1");
+        // State stateAll = initializeState("MATest_merge1");
         
 
         //state1.action = new Command(Command.Dir.S);
@@ -85,13 +84,13 @@ public class Test {
                     case "#initial":
                         int row = 0;
                         line = sc.nextLine();
-                        initialState.MAX_COL = 0;
+                        State.MAX_COL = 0;
                         do {
                             for (int col = 0; col < line.length(); col++) {
                                 char chr = line.charAt(col);
     
                                 if (chr == '+') { // Wall.
-                                    initialState.walls[row][col] = true;
+                                    State.walls[row][col] = true;
                                 } else if ('0' <= chr && chr <= '9') { // Agent.
                                     initialState.updateAgent(chr, row, col);
                                 } else if ('A' <= chr && chr <= 'Z') { // Box.
@@ -106,12 +105,12 @@ public class Test {
                                 }
                             }
                             row++;
-                            if (initialState.MAX_COL < line.length()) {
-                                initialState.MAX_COL = line.length();
+                            if (State.MAX_COL < line.length()) {
+                                State.MAX_COL = line.length();
                             }
                             line = sc.nextLine();
                         } while (!line.startsWith("#"));
-                        initialState.MAX_ROW = row;
+                        State.MAX_ROW = row;
                         break;
                     case "#goal":
                         line = sc.nextLine();

@@ -1,6 +1,5 @@
 public class Communicator {
     
-    //TODO fix this method
     //Should return a new state where the conflict is resolves
     //Meaning either an agent or box has been moved so that the desiredState is now possible    
     //Thr return state should have been combined with the desired State                

@@ -338,7 +338,7 @@ public class State {
             }
             result = prime * result + Arrays.deepHashCode(this.boxes);
             result = prime * result + Arrays.deepHashCode(this.goals);
-            result = prime * result + Arrays.deepHashCode(this.walls);
+            result = prime * result + Arrays.deepHashCode(State.walls);
             result = prime * result + this.box.hashCode();
             this._hash = result;
         }
