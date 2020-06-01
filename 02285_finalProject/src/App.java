@@ -269,14 +269,10 @@ public class App {
                     strategy = new Strategy.StrategyAStar(new Heuristic());
                     break;
                 default:
-                    strategy = new Strategy.StrategyBFS();
-                    System.err.println(
-                            "Defaulting to BFS search. Use arguments -bfs, -dfs or -greedy to set the search strategy.");
-            }
+                    strategy = new Strategy.StrategyAStar(new Heuristic());
+                }
         } else {
-            strategy = new Strategy.StrategyBFS();
-            System.err.println(
-                    "Defaulting to BFS search. Use arguments -bfs, -dfs or -greedy to set the search strategy.");
+            strategy = new Strategy.StrategyAStar(new Heuristic());
         }
 
         ArrayList<State> solution;

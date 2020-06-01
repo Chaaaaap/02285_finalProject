@@ -223,7 +223,7 @@ public class Communicator {
         // Move the desired agent
         // conflictingState.updateAgent(desiredAgent.name, desiredAgent.row, desiredAgent.col);
         conflictingState = conflictingState.combineTwoStates(conflictingState, desiredState);
-        System.err.println(conflictingState);
+        // System.err.println(conflictingState);
         s = "";
         for (int i = 0 ; i < conflictingState.agent.size() ; i++){
             if (conflictingState.agent.get(i).name == desiredAgent.name){  

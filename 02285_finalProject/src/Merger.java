@@ -70,7 +70,13 @@ public class Merger {
                         continue;
                     }
                     if(indices[i] < states.get(i).size()){
-                        State tempState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), states.get(i).get(indices[i + 1]));
+                        State nextStep = null;
+                        if ((indices[i] + 1) >= states.get(i).size()) {
+                            nextStep = states.get(i).get(indices[i]);
+                        } else {
+                            nextStep = states.get(i).get(indices[i] + 1);
+                        }
+                        State tempState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), nextStep);
                         if(tempState != null){
                             preState = tempState;
                             return tempState;
