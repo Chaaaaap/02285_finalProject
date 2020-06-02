@@ -1,4 +1,6 @@
-import java.text.BreakIterator;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Scanner;
 
 public class Communicator {
     
@@ -7,11 +9,11 @@ public class Communicator {
     //Thr return state should have been combined with the desired State                
     public State pleaseMove(State conflictingState, State desiredState, State nextState){
 
-        System.err.println("COMMUNICATOR");
-        System.err.println("conflictingState");
-        System.err.println(conflictingState.toString());
-        System.err.println("desiredState");
-        System.err.println(desiredState.toString());
+        // System.err.println("COMMUNICATOR");
+        // System.err.println("conflictingState");
+        // System.err.println(conflictingState.toString());
+        // System.err.println("desiredState");
+        // System.err.println(desiredState.toString());
 
         // Find coordinates for desired state agent
         Agent desiredAgent = desiredState.agent.get(0);
@@ -57,7 +59,6 @@ public class Communicator {
     }
 
     private State makeWayForMyBox (State conflictingState, State desiredState, int row, int col){
-        System.err.println("MAKE WAY FOR MY BOX");
         State.Box box = conflictingState.boxSparse.stream().filter(b -> b.location.row == row && b.location.col == col).findFirst().orElse(null);
         Agent[] agents = conflictingState.agent.stream().filter(a->a.color.equals(box.color)).toArray(Agent[]::new);
         Agent agent = null;
@@ -98,10 +99,6 @@ public class Communicator {
             dir2 = Command.Dir.E;
         }
         String s = "";
-
-        for (State.Box b : conflictingState.boxSparse) {
-            System.err.println(b.location + " " + b.name);
-        }
 
         if(conflictingState.isCellEmpty(agent.row, agent.col + 1)){
             conflictingState.updateAgent(agent.name, agent.row, agent.col + 1);
@@ -152,7 +149,6 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
-        System.err.println("FIRST ACTION: " + s);
 
 
         s = "";
@@ -166,8 +162,6 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
-        System.err.println("SECOND ACTION: " + s);
-        System.err.println("AFTER " + conflictingState);
         return conflictingState.combineTwoStates(conflictingState, desiredState);
     }
 
@@ -190,27 +184,27 @@ public class Communicator {
                 moveCommandConflict = backupCommand;
             }
 
-        } if (conflictingState.isCellEmpty(conflictingRow, conflictingCol - 1)){ // Move Left
+        } if (conflictingState.isCellEmpty(conflictingRow, conflictingCol - 1 ) && moveCommandConflict == null){ // Move Left
             freeCellRow = conflictingRow;
             freeCellCol = conflictingCol - 1;
             backupCommand = new Command(Command.Dir.W);
-            if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
+            if (nextState.isCellEmpty(freeCellRow, freeCellCol) && moveCommandConflict == null){
                 moveCommandConflict = backupCommand;
             }
 
-        } if (conflictingState.isCellEmpty(conflictingRow + 1, conflictingCol)){ // Move Down
+        } if (conflictingState.isCellEmpty(conflictingRow + 1, conflictingCol) && moveCommandConflict == null){ // Move Down
             freeCellRow = conflictingRow + 1;
             freeCellCol = conflictingCol;
             backupCommand = new Command(Command.Dir.S);
-            if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
+            if (nextState.isCellEmpty(freeCellRow, freeCellCol) && moveCommandConflict == null){
                 moveCommandConflict = backupCommand;
             }
 
-        } if (conflictingState.isCellEmpty(conflictingRow - 1, conflictingCol)){ // Move Up
+        } if (conflictingState.isCellEmpty(conflictingRow - 1, conflictingCol) && moveCommandConflict == null){ // Move Up
             freeCellRow = conflictingRow - 1;
             freeCellCol = conflictingCol;
             backupCommand = new Command(Command.Dir.N);
-            if (nextState.isCellEmpty(freeCellRow, freeCellCol)){
+            if (nextState.isCellEmpty(freeCellRow, freeCellCol) && moveCommandConflict == null){
                 moveCommandConflict = backupCommand;
             }
 
@@ -234,7 +228,7 @@ public class Communicator {
         
         // Move the conflicting agent
         conflictingState.updateAgent(conflictingAgent.name, freeCellRow, freeCellCol);
-        
+
         String s = "";
 
         for (int i = 0 ; i < conflictingState.agent.size() ; i++){
@@ -247,12 +241,12 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
-        System.err.println(s);
+        System.err.println("Confligting solve: " + s);
 
         // Move the desired agent
         // conflictingState.updateAgent(desiredAgent.name, desiredAgent.row, desiredAgent.col);
         conflictingState = conflictingState.combineTwoStates(conflictingState, desiredState);
-        // System.err.println(conflictingState);
+
         s = "";
         for (int i = 0 ; i < conflictingState.agent.size() ; i++){
             if (conflictingState.agent.get(i).name == desiredAgent.name){  
@@ -263,15 +257,26 @@ public class Communicator {
         }
         // remove last char from s
         s = s.substring(0, s.length() - 1);
-        System.out.println(s);
-        System.err.println(s);
+        System.out.println(s);  
+        System.err.println("Wanted move: " + s);
+
+        //Hvis det her ikke er her så laver MAKaren mærkelig ting med agent 4 og 5, 
+        //hvis det er her så gør den som den burde
+        try {
+            BufferedReader br = 
+              new BufferedReader(new InputStreamReader(System.in));
+            String st = br.readLine();
+            //System.err.println("Response is: " + st);
+        } catch (Exception e) {
+            System.err.println("Error:" + e.getMessage());
+        }
 
 
         resolvedState = conflictingState;
-
+        
+        //return null;
         // Return state
-        // System.err.println("Resolved state");
-        // System.err.println(resolvedState);
+        //System.err.println("Resolved state");
         return resolvedState;
     }
 

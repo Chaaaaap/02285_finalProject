@@ -80,7 +80,7 @@ public class Merger {
                             nextStep = states.get(i).get(indices[i] + 1);
                         }
                         State tempState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), nextStep);
-                        System.err.println("Fixed state: " + tempState);
+                        //System.err.println("Fixed state: " + tempState);
                         if(tempState != null){
                             preState = tempState;
                             return tempState;
