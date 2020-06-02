@@ -10,27 +10,21 @@ public class Heuristic {
         int manhattanDistance = 0;
 
         ArrayList<Agent> agents = n.agent;
-        State.Box[][] boxes           = n.boxes;
-        char[][] goals                = n.goals; 
+        ArrayList<State.Box> boxes = n.boxSparse;
+        char[][] goals = n.goals; 
 
         // Distance from each agent to a box of its type
         for (int a = 0 ; a < agents.size() ; a++){
 
             // Each agent boxes coordinates
             ArrayList<Pair> boxCords = new ArrayList<>();
-            
-            for (int row = 0 ; row < boxes.length ; row++){
-                for (int col = 0 ; col < boxes[row].length ; col++){
-                    if (boxes[row][col] != null && goals[row][col] == 0){
-                                                //if (!(boxes[row][col].name == goals[row][col])){
-                            // String color = boxes[row][col].color;
-                            // if (color.equals(agents.get(a).color)){
-                                Pair pair = new Pair(row, col);
-                                boxCords.add(pair);
 
-                            // }
-                        //}
-                    }
+            for (State.Box box : boxes) {
+                int row = box.location.row;
+                int col = box.location.col;
+                if (goals[row][col] == 0) {
+                    Pair pair = new Pair(row, col);
+                    boxCords.add(pair);
                 }
             }
 
@@ -45,46 +39,41 @@ public class Heuristic {
         }
 
         // Distance for each box to its goal
-        for (int boxRow = 0 ; boxRow < boxes.length ; boxRow++){
-
-            for (int boxCol = 0 ; boxCol < boxes[boxRow].length ; boxCol++){
-                
-                if (boxes[boxRow][boxCol] != null){ 
-                    // Assign name and coordinates of box
-                    char boxName = boxes[boxRow][boxCol].name;
-                    Pair boxCords = new Pair(boxRow, boxCol);
+        for (State.Box box : boxes) {
+            // Assign name and coordinates of box
+            char boxName = box.name;
+            Pair boxCords = new Pair(box.location.row, box.location.col);
+            
+            // Assign an object for goal coordinates
+            Pair goalCords = new Pair(-1,-1);
+            
+            // Minimum distance from that box type to one of its goals
+            int minDist = Integer.MAX_VALUE;
+            
+            // For each index in goal matrix
+            for (int goalRow = 0 ; goalRow < goals.length ; goalRow++){
+                for (int goalCol = 0 ; goalCol < goals[goalRow].length ; goalCol++){
                     
-                    // Assign an object for goal coordinates
-                    Pair goalCords = new Pair(-1,-1);
-                    
-                    // Minimum distance from that box type to one of its goals
-                    int minDist = Integer.MAX_VALUE;
-                    
-                    // For each index in goal matrix
-                    for (int goalRow = 0 ; goalRow < boxes.length ; goalRow++){
-                        for (int goalCol = 0 ; goalCol < boxes[goalRow].length ; goalCol++){
-                            
-                            // If name of goal at an index equals the box name, they are of same type
-                            if (goals[goalRow][goalCol] == boxName){
-                                
-                                // Find distance between box and goal
-                                int dist = manhattanDistance(boxCords, new Pair(goalRow, goalCol));
-                                
-                                // If this distance is less than previously observed distance, assign minDist and goal coordinates
-                                if (dist < minDist){
-                                    minDist = dist;
-                                    goalCords.row = goalRow;
-                                    goalCords.col = goalCol;
-                                }
-                            }
-                            
+                    // If name of goal at an index equals the box name, they are of same type
+                    if (goals[goalRow][goalCol] == boxName){
+                        
+                        // Find distance between box and goal
+                        int dist = manhattanDistance(boxCords, new Pair(goalRow, goalCol));
+                        
+                        // If this distance is less than previously observed distance, assign minDist and goal coordinates
+                        if (dist < minDist){
+                            minDist = dist;
+                            goalCords.row = goalRow;
+                            goalCords.col = goalCol;
                         }
                     }
-                    // Add the minimum distance to the overall score
-                    manhattanDistance += minDist;
+                    
                 }
             }
+            // Add the minimum distance to the overall score
+            manhattanDistance += minDist;
         }
+    
         return manhattanDistance;
     }
 

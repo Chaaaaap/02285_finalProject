@@ -40,6 +40,8 @@ public class Merger {
         String listString = actions.stream().map(Object::toString)
                         .collect(Collectors.joining(";"));
         System.out.println(listString);
+        //System.err.println(preState);
+        //System.err.println("Actions: " + listString);
         return actions;
     }
 
@@ -64,7 +66,8 @@ public class Merger {
                 return preState;
             }
 
-            if(temp.stream().filter(c->c.actionType == Command.Type.NoOp).count() == temp.size()){                
+            if(temp.stream().filter(c->c.actionType == Command.Type.NoOp).count() == temp.size()){   
+                System.err.println("THERE IS A CONFLICT");             
                 for (int i = 0; i < states.size(); i++) {
                     if(states.get(i) == null){
                         continue;
@@ -77,6 +80,7 @@ public class Merger {
                             nextStep = states.get(i).get(indices[i] + 1);
                         }
                         State tempState = new Communicator().pleaseMove(preState, states.get(i).get(indices[i]), nextStep);
+                        System.err.println("Fixed state: " + tempState);
                         if(tempState != null){
                             preState = tempState;
                             return tempState;

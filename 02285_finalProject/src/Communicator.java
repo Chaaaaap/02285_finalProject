@@ -1,3 +1,5 @@
+import java.text.BreakIterator;
+
 public class Communicator {
     
     //Should return a new state where the conflict is resolves
@@ -5,11 +7,11 @@ public class Communicator {
     //Thr return state should have been combined with the desired State                
     public State pleaseMove(State conflictingState, State desiredState, State nextState){
 
-        // System.err.println("COMMUNICATOR");
-        // System.err.println("conflictingState");
-        // System.err.println(conflictingState.toString());
-        // System.err.println("desiredState");
-        // System.err.println(desiredState.toString());
+        System.err.println("COMMUNICATOR");
+        System.err.println("conflictingState");
+        System.err.println(conflictingState.toString());
+        System.err.println("desiredState");
+        System.err.println(desiredState.toString());
 
         // Find coordinates for desired state agent
         Agent desiredAgent = desiredState.agent.get(0);
@@ -22,8 +24,9 @@ public class Communicator {
 
         int desiredColTempAgent = desiredCol;
         int desiredRowTempAgent = desiredRow;
-        Agent conflictingAgent      = conflictingState.agent.stream().filter(a->a.col == desiredColTempAgent && a.row == desiredRowTempAgent).findFirst().orElse(null);
-        State.Box conflictingBox    = conflictingState.boxes[desiredRow][desiredCol];
+        Agent conflictingAgent = conflictingState.agent.stream().filter(a->a.col == desiredColTempAgent && a.row == desiredRowTempAgent).findFirst().orElse(null);
+        // State.Box conflictingBox = conflictingState.boxes[desiredRow][desiredCol];
+        State.Box conflictingBox = conflictingState.boxSparse.stream().filter(b -> b.location.row == desiredRowTempAgent && b.location.col == desiredColTempAgent).findFirst().orElse(null);
 
         if (conflictingAgent != null){
             return fixForAgent(conflictingState, desiredState, conflictingAgent, desiredAgent, nextState, false);
@@ -54,7 +57,9 @@ public class Communicator {
     }
 
     private State makeWayForMyBox (State conflictingState, State desiredState, int row, int col){
-        Agent[] agents = conflictingState.agent.stream().filter(a->a.color.equals(conflictingState.boxes[row][col].color)).toArray(Agent[]::new);
+        System.err.println("MAKE WAY FOR MY BOX");
+        State.Box box = conflictingState.boxSparse.stream().filter(b -> b.location.row == row && b.location.col == col).findFirst().orElse(null);
+        Agent[] agents = conflictingState.agent.stream().filter(a->a.color.equals(box.color)).toArray(Agent[]::new);
         Agent agent = null;
         if(agents.length == 0){
             return null;
@@ -74,6 +79,30 @@ public class Communicator {
         //Find retning aften kan gå
         Command.Dir dir = null;
         Command.Dir dir2 = null;
+
+        State.Box conflictingBox = conflictingState.boxSparse.stream().filter(b -> b.location.row == row && b.location.col == col).findFirst().orElse(null);
+        if(agent.row - row == 1){
+            //
+            dir2 = Command.Dir.N;
+        }
+        else if(agent.row - row == -1){
+            //
+            dir2 = Command.Dir.S;
+        }
+        else if(agent.col - col == 1){
+            //
+            dir2 = Command.Dir.W;
+        }
+        else if (agent.col - col == -1) {
+            //
+            dir2 = Command.Dir.E;
+        }
+        String s = "";
+
+        for (State.Box b : conflictingState.boxSparse) {
+            System.err.println(b.location + " " + b.name);
+        }
+
         if(conflictingState.isCellEmpty(agent.row, agent.col + 1)){
             conflictingState.updateAgent(agent.name, agent.row, agent.col + 1);
             dir = Command.Dir.E;
@@ -94,28 +123,24 @@ public class Communicator {
             return null;
         }
         //pull box hen hvor agent stod før -> finde den retning
-        if(agent.row - row == 2){
-            conflictingState.boxes[row+1][col] = conflictingState.boxes[row][col];
-            conflictingState.boxes[row][col] = null;
-            dir2 = Command.Dir.N;
+        
+        switch (dir2) {
+            case N:
+            conflictingBox.location.row++;
+                break;
+            case S:
+            conflictingBox.location.row--;
+            break;
+             case E:
+             conflictingBox.location.col--;
+             break;
+             case W:
+             conflictingBox.location.col++;
+                break;
+            
+            default:
+                break;
         }
-        else if(agent.row - row == -2){
-            conflictingState.boxes[row-1][col] = conflictingState.boxes[row][col];
-            conflictingState.boxes[row][col] = null;
-            dir2 = Command.Dir.S;
-        }
-        else if(agent.col - col == 2){
-            conflictingState.boxes[row][col+1] = conflictingState.boxes[row][col];
-            conflictingState.boxes[row][col] = null;
-            dir2 = Command.Dir.W;
-        }
-        else{
-            conflictingState.boxes[row][col-1] = conflictingState.boxes[row][col];
-            conflictingState.boxes[row][col] = null;
-            dir2 = Command.Dir.E;
-        }
-
-        String s = "";
 
         for (int i = 0 ; i < conflictingState.agent.size() ; i++){
             if (conflictingState.agent.get(i).name == agent.name){  
@@ -127,6 +152,8 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
+        System.err.println("FIRST ACTION: " + s);
+
 
         s = "";
         for (int i = 0 ; i < conflictingState.agent.size() ; i++){
@@ -139,6 +166,8 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
+        System.err.println("SECOND ACTION: " + s);
+        System.err.println("AFTER " + conflictingState);
         return conflictingState.combineTwoStates(conflictingState, desiredState);
     }
 
@@ -191,15 +220,15 @@ public class Communicator {
             moveCommandConflict = backupCommand;
         }
         if (backupCommand == null){
-            System.err.println("I AM STUCK");
+            // System.err.println("I AM STUCK");
             return null;
         }
 
         State resolvedState = null;
 
         if (fixForBox){ // Updating the box
-            conflictingState.boxes[conflictingRow][conflictingCol] = conflictingState.boxes[desiredAgent.row][desiredAgent.col];
-            conflictingState.boxes[desiredAgent.row][desiredAgent.col] = null;
+            State.Box conflictingBox = conflictingState.boxSparse.stream().filter(b -> b.location.row == desiredAgent.row && b.location.col == desiredAgent.col).findFirst().orElse(null);
+            conflictingBox.location = new Pair(conflictingRow, conflictingCol);
 
         }
         
@@ -218,6 +247,7 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
+        System.err.println(s);
 
         // Move the desired agent
         // conflictingState.updateAgent(desiredAgent.name, desiredAgent.row, desiredAgent.col);
@@ -234,6 +264,7 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
+        System.err.println(s);
 
 
         resolvedState = conflictingState;

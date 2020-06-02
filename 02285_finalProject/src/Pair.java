@@ -1,4 +1,4 @@
-public class Pair{
+public class Pair implements Cloneable {
 
     public int row;
     public int col;
@@ -17,6 +17,16 @@ public class Pair{
         this.col = col;
         //System.err.println("In Heuristic.Pair 3");
 
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        Pair clone = null;
+        try {
+            clone = (Pair) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        return clone;
     }
 
     @Override

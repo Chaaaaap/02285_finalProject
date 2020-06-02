@@ -148,12 +148,15 @@ public class App {
             }
 
             strategy.addToExplored(leafState);
+            //System.err.println("Expanded states size(): " + leafState.getExpandedStates(false).size());
             for (State n : leafState.getExpandedStates(false)) { // The list of expanded states is shuffled randomly; see
                 if (!strategy.isExplored(n) && !strategy.inFrontier(n)) {
                     strategy.addToFrontier(n);
                 }
             }
-            iterations++;
+           iterations++;
+
+            
         }
     }
 
@@ -171,17 +174,15 @@ public class App {
             for (Agent agent : tempState.agent) {
                 initialStates.add(tempState.findInitial(agent));
             }
-
             
-    
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
-     
+
             for (State state : initialStates) {
                 strategy = new Strategy.StrategyAStar(new Heuristic());
                 allPlans.add(Search(strategy, state));
                 
             }
-    
+
             Merger merger = new Merger(tempState);
             tempState = merger.SuperMerger(allPlans);
             counter++;                      

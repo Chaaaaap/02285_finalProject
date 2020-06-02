@@ -27,7 +27,9 @@ public class State {
     public static int MAX_COL = 70;
 
     public static boolean[][] walls = new boolean[MAX_ROW][MAX_COL];
-    public Box[][] boxes = new Box[MAX_ROW][MAX_COL];
+    // public Box[][] boxes = new Box[MAX_ROW][MAX_COL];
+    public ArrayList<Box> boxSparse = new ArrayList<>();
+    public ArrayList<Object[]> goalSparse = new ArrayList<>();
     public char[][] goals = new char[MAX_ROW][MAX_COL];
     public ArrayList<Box> box = new ArrayList<>();
 
@@ -51,6 +53,8 @@ public class State {
 
     public void addBox(String color, char chr) {
         box.add(new Box(color, chr));
+        // Object[] box = new Object[] {-1, -1, chr};
+        // boxSparse.add(box);
     }
 
     public void addAgent(String color, char chr) {
@@ -67,28 +71,28 @@ public class State {
     }
 
     public void updateBox(char name, int row, int col) {
-        for (int i = 0; i < box.size(); i++) {
-            if ((int) box.get(i).name == (int) name) {
+        String color = box.stream().filter(b -> b.name == name).findFirst().orElse(null).color;
+        Box box = new Box(color, name, new Pair(row, col));
+        boxSparse.add(box);
+        // for (int i = 0; i < box.size(); i++) {
+        //     if ((int) box.get(i).name == (int) name) {
 
-                boxes[row][col] = box.get(i);
-                //box.remove(i);
-            }
-        }
+        //         boxes[row][col] = box.get(i);
+        // //         box.remove(i);
+        //     }
+        // }
     }
 
     public boolean isBoxGoalState() {
         for (int row = 1; row < MAX_ROW - 1; row++) {
             for (int col = 1; col < MAX_COL - 1; col++) {
+                int r = row;
+                int c = col;
                 char g = goals[row][col];
-                if (boxes[row][col] == null && g > 0) {
+                if (g > 0) {
+                    if (boxSparse.stream()
+                    .filter(b -> b.location.row == r && b.location.col == c && b.name == g).count() == 0) 
                     return false;
-                } else if (boxes[row][col] == null) {
-                    continue;
-                } else {
-                    char b = (boxes[row][col].name);
-                    if (g > 0 && b != g) {
-                        return false;
-                    }
                 }
             }
         }
@@ -118,11 +122,12 @@ public class State {
             }
         }
 
-        return !State.walls[row][col] && this.boxes[row][col] == null;
+        // Object[] box = boxSparse.stream().filter(b -> (int)b[0] == row && (int)b[1] == col).findFirst().orElse(null);
+        return !State.walls[row][col] && !boxAt(row, col);
     }
 
     private boolean boxAt(int row, int col) {
-        return this.boxes[row][col] != null;
+        return boxSparse.stream().filter(b -> b.location.row == row && b.location.col == col).findFirst().orElse(null) != null;
     }
 
     public ArrayList<State> extractPlan() {
@@ -139,15 +144,19 @@ public class State {
     public State ChildState() {
         State copy = new State(this);
         for (int row = 0; row < MAX_ROW; row++) {
-            System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, MAX_COL);
+            // System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, MAX_COL);
             System.arraycopy(this.goals[row], 0, copy.goals[row], 0, MAX_COL);
         }
-
         try {
             ArrayList<Agent> clone = new ArrayList<Agent>(agent.size());
             for (Agent item : agent)
                 clone.add((Agent) item.clone());
             copy.agent = clone;
+            ArrayList<Box> cloneBox = new ArrayList<>();
+            for (Box box : boxSparse) {
+                cloneBox.add((Box) box.clone());
+            }
+            copy.boxSparse = cloneBox;
         } catch (Exception e) {
         }
         copy.box = this.box;
@@ -188,8 +197,9 @@ public class State {
                             n.action = c;
                             n.agent.get(0).row = newAgentRow;
                             n.agent.get(0).col = newAgentCol;
-                            n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
-                            n.boxes[newAgentRow][newAgentCol] = null;
+                            n.boxSparse.stream()
+                              .filter(b -> b.location.row == newAgentRow && b.location.col == newAgentCol)
+                              .findFirst().orElse(null).location = new Pair(newBoxRow, newBoxCol);
                             expandedStates.add(n);
                         }
                     }
@@ -204,8 +214,9 @@ public class State {
                             n.action = c;
                             n.agent.get(0).row = newAgentRow;
                             n.agent.get(0).col = newAgentCol;
-                            n.boxes[this.agent.get(0).row][this.agent.get(0).col] = this.boxes[boxRow][boxCol];
-                            n.boxes[boxRow][boxCol] = null;
+                            n.boxSparse.stream()
+                              .filter(b -> b.location.row == boxRow && b.location.col == boxCol)
+                              .findFirst().orElse(null).location = new Pair(agent.get(0).row, agent.get(0).col);
                             expandedStates.add(n);
                         }
                     }
@@ -225,9 +236,11 @@ public class State {
                         return null;
                     }
                 }
-
-                if(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col] != null && 
-                   !(s1.boxes[s2.agent.get(j).row][s2.agent.get(j).col].color.equals(s2.agent.get(j).color))){ // If there is an agent where I want to move 
+                int index = j;
+                Box box = s1.boxSparse.stream().filter(b -> b.location.row == s2.agent.get(index).row && b.location.col == s2.agent.get(index).col).findFirst().orElse(null);
+                if(box != null && 
+                   !(box.color.equals(s2.agent.get(j).color))){ // If there is an agent where I want to move
+                    
                     return null;
                 }
 
@@ -243,33 +256,33 @@ public class State {
         //This if should be tested
         if (s2.action.actionType == Command.Type.Pull || s2.action.actionType == Command.Type.Push) {
 
-            for (int i = 0; i < s1.boxes.length; i++) {
-                for (int j = 0; j < s1.boxes[i].length; j++) {
-                    if (s1.boxes[i][j] != null && s2.boxes[i][j] != null && !s1.boxes[i][j].equals(s2.boxes[i][j])) {
+            for (int i = 0; i < State.MAX_ROW; i++) {
+                for (int j = 0; j < State.MAX_COL; j++) {
+                    int rowIndex = i;
+                    int colIndex = j;
+                    Box box1 = s1.boxSparse.stream().filter(b -> b.location.row == rowIndex && b.location.col == colIndex).findFirst().orElse(null);
+                    Box box2 = s2.boxSparse.stream().filter(b -> b.location.row == rowIndex && b.location.col == colIndex).findFirst().orElse(null);
+                    if (box1 != null && box2 != null && !box1.equals(box2)) {
                         return null;
                     }
 
-                    if(s2.boxes[i][j] != null && !(s2.boxes[i][j].equals(s1.boxes[i][j])) && !s1.cellIsFree(i, j, s2.agent.get(0))){
-
+                    if(box2 != null && !(box2.equals(box1)) && !s1.cellIsFree(i, j, s2.agent.get(0))){
                         return null;
                     }
-
-                    if (newState.boxes[i][j] == null && s2.boxes[i][j] != null) {
+                    Box newStateBox = newState.boxSparse.stream().filter(b -> b.location.row == rowIndex && b.location.col == colIndex).findFirst().orElse(null);
+                    if (newStateBox == null && box2 != null) {
                         if(s2.action.actionType == Command.Type.Pull){   
-                            if(newState.boxes[(i+(Command.dirToRowChange(s2.action.dir2)))]
-                            [(j+(Command.dirToColChange(s2.action.dir2)))] != null){
-                                newState.boxes[(i+(Command.dirToRowChange(s2.action.dir2)))]
-                                          [(j+(Command.dirToColChange(s2.action.dir2)))]= null; 
-                                newState.boxes[i][j] = s2.boxes[i][j];
+                            newStateBox = newState.boxSparse.stream()
+                              .filter(b -> b.location.row == (rowIndex + (Command.dirToRowChange(s2.action.dir2))) && b.location.col == (colIndex +(Command.dirToColChange(s2.action.dir2)))).findFirst().orElse(null);
+                            if(newStateBox != null){
+                                newStateBox.location = box2.location;
                             } 
                             
                         }
                         else{
-                            if(newState.boxes[(i+(-1*Command.dirToRowChange(s2.action.dir2)))]
-                            [(j+(-1*Command.dirToColChange(s2.action.dir2)))] != null){
-                                newState.boxes[i][j] = s2.boxes[i][j];
-                                newState.boxes[(i+(-1*Command.dirToRowChange(s2.action.dir2)))]
-                                [(j+(-1*Command.dirToColChange(s2.action.dir2)))]= null; 
+                            newStateBox = newState.boxSparse.stream().filter(b -> b.location.row == (rowIndex + (-1*Command.dirToRowChange(s2.action.dir2))) && b.location.col == (colIndex + (-1*Command.dirToColChange(s2.action.dir2)))).findFirst().orElse(null);
+                            if(newStateBox != null){
+                                newStateBox.location = box2.location;
                             }
                         } 
                     } 
@@ -279,13 +292,52 @@ public class State {
         return newState;
     }
 
-    public class Box {
+    public class Box implements Cloneable {
+        public int _hash = 0;
         public String color;
         public char name;
+        public Pair location;
 
         public Box(String color, char name) {
             this.color = color;
             this.name = name;
+        }
+
+        public Box(String color, char name, Pair location) {
+            this.color = color;
+            this.name = name;
+            this.location = location;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(o == null){
+                return false;
+            }
+            return this == o || (color == ((Box)o).color && location.equals(((Box)o).location) && ((Box)o).name == name);
+        }
+
+        public Object clone() throws CloneNotSupportedException {
+            Box clone = null;
+            try {
+                clone = (Box) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+            return clone;
+        }
+
+        @Override
+        public int hashCode(){
+            int primeRow = 31;
+            int primeCol = 37;
+            int result = 1;
+            result = result * primeRow + location.row;
+            result = result * primeCol + location.col;
+            result = result * primeCol + name;
+
+            _hash = result;
+            return result;
         }
     }
 
@@ -300,8 +352,9 @@ public class State {
             for (int col = 0; col < MAX_COL; col++) {
                 int coll = col; // Resloving: Local Variable Defined in an Enclosing Scope Must be Final or Effectively Final Error 
                 int roww = row; // For:  } else if (agent.stream().filter(a->a.col == coll && a.row == roww).count() > 0){
-                if (this.boxes[row][col] != null) {
-                    s.append(this.boxes[row][col].name);
+                Box box = boxSparse.stream().filter(b -> b.location.row == roww && b.location.col == coll).findFirst().orElse(null);
+                if (box != null) {
+                    s.append(box.name);
                 } else if (this.goals[row][col] > 0) {
                     s.append(Character.toLowerCase(this.goals[row][col]));
                 } else if (State.walls[row][col]) {
@@ -336,12 +389,16 @@ public class State {
                 result = prime * result + a.col;
                 result = prime * result + a.row;
             }
-            result = prime * result + Arrays.deepHashCode(this.boxes);
+            result = prime * result + Arrays.deepHashCode(this.boxSparse.toArray());
+            //result = prime * result + this.boxSparse.hashCode();
             result = prime * result + Arrays.deepHashCode(this.goals);
             result = prime * result + Arrays.deepHashCode(State.walls);
-            result = prime * result + this.box.hashCode();
+            // result = prime * result + this.box.hashCode();
             this._hash = result;
         }
+        // System.err.println(this._hash);
+        // System.err.println(this.boxSparse.get(0)._hash);
+        // System.err.println(this);
         return this._hash;
     }
 
@@ -356,7 +413,7 @@ public class State {
         State other = (State) obj;
         if (Arrays.deepEquals(this.agent.toArray(), other.agent.toArray()))
             return false;
-        if (!Arrays.deepEquals(this.boxes, other.boxes))
+        if (!Arrays.deepEquals(this.boxSparse.toArray(), other.boxSparse.toArray()))
             return false;
         if (!Arrays.deepEquals(goals, this.goals))
             return false;
@@ -370,7 +427,7 @@ public class State {
         int cols = MAX_COL;
 
         boolean[][] newWalls = new boolean[rows][cols];
-        Box[][] newBoxes = new Box[rows][cols];
+        // Box[][] newBoxes = new Box[rows][cols];
         char[][] newGoals = new char[rows][cols];
 
         
@@ -402,13 +459,13 @@ public class State {
                     }
                 }
                 newWalls[row][col] = State.walls[row][col];
-                newBoxes[row][col] = this.boxes[row][col];
+                // newBoxes[row][col] = this.boxes[row][col];
                 newGoals[row][col] = this.goals[row][col];
             }
         }
 
         State.walls = newWalls;
-        this.boxes = newBoxes;
+        // this.boxes = newBoxes;
         this.goals = newGoals;
     }
 
@@ -420,12 +477,14 @@ public class State {
 
         ini.agent = new ArrayList<>();
         ini.agent.add(iniAgent);
+        ini.boxSparse = new ArrayList<>();
 
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
+                int c = row;
+                int d = col;
+
                 if(this.goals[row][col] > 0){
-                    int c = row;
-                    int d = col;
                     Box tempBox = box.stream().filter(b->b.name == this.goals[c][d]).findFirst().orElse(null);
                     if(tempBox != null && tempBox.color.equals(iniAgent.color)){
                         // se om der er en vej fra agent til goal
@@ -443,9 +502,14 @@ public class State {
                     
                     
                 }
-                if(this.boxes[row][col] != null){
-                    if(this.boxes[row][col].color.equals(iniAgent.color)){
-                        ini.boxes[row][col] = this.boxes[row][col];
+                Box box = boxSparse.stream().filter(b -> b.location.row == c && b.location.col == d).findFirst().orElse(null);
+                if(box != null){
+                    if(box.color.equals(iniAgent.color)){
+                        try {
+                        ini.boxSparse.add((Box)box.clone());
+                        } catch (Exception e) {
+                            System.err.println("Should never happens... Box failed clone");
+                        }
                     }
                 }
                 
@@ -455,7 +519,7 @@ public class State {
     }
 
     public boolean isCellEmpty(int row, int col){
-        if (this.boxes[row][col] != null){
+        if (boxAt(row, col)){            
             return false;
         } else if (State.walls[row][col]) {
             return false;
@@ -467,12 +531,11 @@ public class State {
     }
 
 	public void convertBoxesToWalls() {
-        for (int i = 0; i < this.boxes.length; i++) {
-            for (int j = 0; j < this.boxes[i].length; j++) {
-                if (this.boxes[i][j] != null) {
-                    State.walls[i][j] = true;
-                }
-            }
+        for (Box box : boxSparse) {
+            int row = box.location.row;
+            int col = box.location.col;
+
+            State.walls[row][col] = true;
         }
 	}
 

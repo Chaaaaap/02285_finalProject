@@ -217,7 +217,8 @@ public abstract class Strategy {
         public State getAndRemoveLeaf() {
             State n = frontier.get(0);
             frontier.remove(0);
-
+            addToExplored(n);
+            
             return n;
         }
 
