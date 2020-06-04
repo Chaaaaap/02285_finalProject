@@ -144,6 +144,7 @@ public class App {
 
                        
             if (leafState.isBoxGoalState()) {
+                System.err.println("Foudn goal by " + strategy.countExplored() + " states");
                 return leafState.extractPlan();
             }
 
@@ -178,6 +179,7 @@ public class App {
             ArrayList<ArrayList<State>> allPlans = new ArrayList<>();
 
             for (State state : initialStates) {
+                //strategy = new Strategy.StrategyGREEDY(new Heuristic());
                 strategy = new Strategy.StrategyAStar(new Heuristic());
                 allPlans.add(Search(strategy, state));
                 

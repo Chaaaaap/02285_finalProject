@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Scanner;
 
 public class Communicator {
     
@@ -241,7 +240,6 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);
-        System.err.println("Confligting solve: " + s);
 
         // Move the desired agent
         // conflictingState.updateAgent(desiredAgent.name, desiredAgent.row, desiredAgent.col);
@@ -258,7 +256,6 @@ public class Communicator {
         // remove last char from s
         s = s.substring(0, s.length() - 1);
         System.out.println(s);  
-        System.err.println("Wanted move: " + s);
 
         //Hvis det her ikke er her så laver MAKaren mærkelig ting med agent 4 og 5, 
         //hvis det er her så gør den som den burde

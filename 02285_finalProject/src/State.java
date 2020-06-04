@@ -15,8 +15,8 @@ public class State {
 
     public int _hash = 0;
     public int h;
-    public int g;
-    public int f;
+    public double g;
+    public double f;
 
     public static boolean isMultiLevel = true;
 
@@ -48,7 +48,7 @@ public class State {
 
     public State(State parent) {
         this.parent = parent;
-        this.g = parent.g + 1;
+        this.g = parent.g + 0.5;
     }
 
     public void addBox(String color, char chr) {
